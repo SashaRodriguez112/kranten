@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Krantenwijk</title>
+	<style>
+		body {
+			background: #000;
+			color: snow;
+			font-family: Arial, sans-serif;
+			margin: 20px;
+		}
+		h1 {
+			color: turquoise;
+		}
+		h2 {
+			color: turquoise;
+		}
+		.controls {
+			display: flex;
+			gap: 10px;
+			flex-wrap: wrap;
+			align-items: center;
+			margin-bottom: 20px;
+		}
+		input, select, button {
+			height: 40px;
+			border: 2px solid turquoise;
+			border-radius: 8px;
+			background: #002222;
+			color: white;
+			padding: 0 10px;
+			font-size: 16px;
+		}
+		button {
+			cursor: pointer;
+		}
+		button:hover {
+			background: #004444;
+		}
+		#referenceContainer {
+			display: none;
+		}
+		ul {
+			list-style: none;
+			padding: 0;
+		}
+		li {
+			width: fit-content;
+			min-width: 320px;
+			height: 30px;
+			padding: 8px 15px;
+			border: 2px solid turquoise;
+			background: #002222;
+			border-radius: 10px;
+			margin-bottom: 8px;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+		}
+		.houseLeft {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			user-select: none;
+			-webkit-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none;
+		}
+		input[type="checkbox"] {
+			width: 22px;
+			height: 22px;
+		}
+		.deleteHouse {
+			border-color: red;
+			background: #220000;
+			height: 35px;
+		}
+		.deleteHouse:hover {
+			background: #550000;
+		}
+	</style>
+</head>
+
+<body>
+
+	<h1>Krantenlijst</h1>
+
+	<div class="controls">
+		<select id="street"></select>
+		<button id="addStreet">+ Street</button>
+		<button id="removeStreet">- Street</button>
+		<input type="number" id="houseNumber" placeholder="House number">
+		<select id="krant">
+			<option>VK</option>
+			<option>HD</option>
+			<option>NRC</option>
+			<option>YC</option>
+			<option>HFD</option>
+			<option>TEL</option>
+			<option>TR</option>
+			<option>HP</option>
+			<option>AD</option>
+			<option>NYC</option>
+		</select>
+		<select id="action">
+			<option value="add">Add</option>
+			<option value="bij">Bij</option>
+			<option value="af">Af</option>
+		</select>
+		<span id="referenceContainer">
+			<select id="reference"></select>
+		</span>
+		<button id="submit">Submit</button>
+	</div>
+
+	<ul id="houseList"></ul>
+
+	<script>
+		let streets = [];
+		let houses = [];
+
+		const street = document.getElementById("street");
+		const addStreet = document.getElementById("addStreet");
+		const removeStreet = document.getElementById("removeStreet");
+		const houseNumber = document.getElementById("houseNumber");
+		const krant = document.getElementById("krant");
+		const action = document.getElementById("action");
+		const reference = document.getElementById("reference");
+		const referenceContainer = document.getElementById("referenceContainer");
+		const submit = document.getElementById("submit");
+		const houseList = document.getElementById("houseList");
+
+		function saveData() {
+			localStorage.setItem("streets", JSON.stringify(streets));
+			localStorage.setItem("houses", JSON.stringify(houses));
+		}
+
+		function loadData() {
+			const savedStreets = localStorage.getItem("streets");
+			const savedHouses = localStorage.getItem("houses");
+			if (savedStreets) {
+				streets = JSON.parse(savedStreets);
+			}
+			if (savedHouses) {
+				houses = JSON.parse(savedHouses);
+			}
+		}
+
+		function renderStreetList() {
+			street.innerHTML = "";
+			if (streets.length === 0) {
+				let option = document.createElement("option");
+				option.textContent = "Add street first";
+				option.value = "";
+				street.appendChild(option);
+				return;
+			}
+			streets.forEach(name => {
+				let option = document.createElement("option");
+				option.value = name;
+				option.textContent = name;
+				street.appendChild(option);
+			});
+		}
+
+		function renderReferenceList() {
+			reference.innerHTML = "";
+			houses.filter(h => h.street === street.value).forEach((house) => {
+				let option = document.createElement("option");
+				option.value = houses.indexOf(house);
+				option.textContent = `${house.number} ${house.kranten.join("/")}`;
+				reference.appendChild(option);
+			});
+		}
+
+		function renderList() {
+			houseList.innerHTML = "";
+			let idCounter = 0;
+
+			streets.forEach(streetName => {
+				let heading = document.createElement("h2");
+				heading.textContent = streetName;
+				houseList.appendChild(heading);
+
+				houses.filter(h => h.street === streetName).forEach(house => {
+					let li = document.createElement("li");
+					let uniqueId = `chk-${streetName.replace(/\s/g, '-')}-${house.number}-${idCounter++}`;
+
+					li.innerHTML = `
+						<div class="houseLeft">
+							<input type="checkbox" id="${uniqueId}">
+							<label for="${uniqueId}">
+								<strong>${house.number} ${house.kranten.join("/")}</strong>
+							</label>
+						</div>
+						<button class="deleteHouse">x</button>
+					`;
+
+					let checkbox = li.querySelector("input");
+					checkbox.checked = house.checked || false;
+
+					checkbox.addEventListener("change", () => {
+						house.checked = checkbox.checked;
+						saveData();
+					});
+
+					li.querySelector(".deleteHouse").addEventListener("click", () => {
+						houses.splice(houses.indexOf(house), 1);
+						saveData();
+						renderList();
+					});
+
+					houseList.appendChild(li);
+				});
+			});
+
+			renderReferenceList();
+		}
+
+		action.addEventListener("change", () => {
+			referenceContainer.style.display = action.value === "bij" ? "inline" : "none";
+			renderReferenceList();
+		});
+
+		addStreet.addEventListener("click", () => {
+			const name = prompt("Street name:");
+			if (!name) return;
+			if (streets.includes(name)) {
+				alert("Street already exists.");
+				return;
+			}
+			streets.push(name);
+			saveData();
+			renderStreetList();
+			street.value = name;
+			renderList();
+		});
+
+		removeStreet.addEventListener("click", () => {
+			if (!street.value) return;
+			const name = street.value;
+			const amount = houses.filter(h => h.street === name).length;
+			if (amount > 0) {
+				const confirmDelete = confirm("This street still has houses. Delete everything?");
+				if (!confirmDelete) return;
+				houses = houses.filter(h => h.street !== name);
+			}
+			streets.splice(streets.indexOf(name), 1);
+			saveData();
+			renderStreetList();
+			renderList();
+		});
+
+		street.addEventListener("change", () => {
+			renderReferenceList();
+		});
+
+		submit.addEventListener("click", () => {
+			if (!street.value) {
+				alert("Add a street first.");
+				return;
+			}
+			const number = houseNumber.value.trim();
+			if (number === "") {
+				alert("Enter a house number.");
+				return;
+			}
+			const selectedKrant = krant.value;
+
+			if (action.value === "add") {
+				let existing = houses.find(h => h.street === street.value && h.number == number);
+				if (existing) {
+					if (!existing.kranten.includes(selectedKrant)) {
+						existing.kranten.push(selectedKrant);
+						existing.kranten.sort();
+					}
+				} else {
+					houses.push({
+						street: street.value,
+						number: number,
+						kranten: [selectedKrant],
+						checked: false
+					});
+				}
+			} else if (action.value === "bij") {
+				let existing = houses.find(h => h.street === street.value && h.number == number);
+				if (existing) {
+					if (!existing.kranten.includes(selectedKrant)) {
+						existing.kranten.push(selectedKrant);
+						existing.kranten.sort();
+					}
+				} else {
+					let newHouse = {
+						street: street.value,
+						number: number,
+						kranten: [selectedKrant],
+						checked: false
+					};
+					let referenceHouse = parseInt(reference.value);
+					if (isNaN(referenceHouse)) {
+						houses.push(newHouse);
+					} else {
+						houses.splice(referenceHouse, 0, newHouse);
+					}
+				}
+			} else if (action.value === "af") {
+				let existing = houses.find(h => h.street === street.value && h.number == number);
+				if (!existing) {
+					alert("House not found.");
+					return;
+				}
+				let index = existing.kranten.indexOf(selectedKrant);
+				if (index === -1) {
+					alert("This house doesn't have that newspaper.");
+					return;
+				}
+				existing.kranten.splice(index, 1);
+				if (existing.kranten.length === 0) {
+					houses.splice(houses.indexOf(existing), 1);
+				}
+			}
+			saveData();
+			renderList();
+			houseNumber.value = "";
+			houseNumber.focus();
+		});
+
+		loadData();
+		renderStreetList();
+		renderList();
+	</script>
+
+</body>
+</html>

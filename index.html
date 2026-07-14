@@ -207,11 +207,17 @@
 					});
 
 					li.querySelector(".deleteHouse").addEventListener("click", () => {
-						houses.splice(houses.indexOf(house), 1);
-						saveData();
-						renderList();
-					});
+                        const confirmed = confirm(
+                            `Delete house ${house.number} (${house.kranten.join("/")})?`
+                        );
 
+                        if (!confirmed) return;
+
+                        houses.splice(houses.indexOf(house), 1);
+                        saveData();
+                        renderList();
+                    });
+                    
 					houseList.appendChild(li);
 				});
 			});

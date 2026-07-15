@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Krantenwijk</title>
+	<title>Test</title>
 	<style>
 		body {
 			background: #000;
@@ -14,6 +14,17 @@
 		h1 {
 			color: turquoise;
 		}
+		h1 select {
+	        background: #002222;
+	        color: white;
+	        border: 2px solid turquoise;
+	        border-radius: 8px;
+	        font-size: 22px;
+	        padding: 4px 10px;
+	        margin-left: 15px;
+	        position: relative;
+	        bottom: 3px;        
+        }
 		h2 {
 			color: turquoise;
 		}
@@ -85,7 +96,13 @@
 
 <body>
 
-	<h1>Krantenlijst</h1>
+	<h1>Krantenwijk
+        <select id="dayView">
+            <option value="mawo">Ma-Wo</option>
+            <option value="dovr">Do-Vr</option>
+            <option value="za">Za</option>
+        </select>
+    </h1>
 
 	<div class="controls">
 		<select id="street"></select>
@@ -109,6 +126,13 @@
 			<option value="bij">Bij</option>
 			<option value="af">Af</option>
 		</select>
+		<select id="days">
+	        <option value="mawo">Ma-Wo</option>
+	        <option value="week">Ma-Za</option>
+	        <option value="dovr">Do-Vr</option>
+	        <option value="doza">Do-Za</option>
+	        <option value="za">Za</option>
+        </select>
 		<span id="referenceContainer">
 			<select id="reference"></select>
 		</span>
@@ -127,10 +151,12 @@
 		const houseNumber = document.getElementById("houseNumber");
 		const krant = document.getElementById("krant");
 		const action = document.getElementById("action");
+		const days = document.getElementById("days");
 		const reference = document.getElementById("reference");
 		const referenceContainer = document.getElementById("referenceContainer");
 		const submit = document.getElementById("submit");
 		const houseList = document.getElementById("houseList");
+		const dayView = document.getElementById("dayView");
 
 		function saveData() {
 			localStorage.setItem("streets", JSON.stringify(streets));
@@ -144,10 +170,31 @@
 				streets = JSON.parse(savedStreets);
 			}
 			if (savedHouses) {
-				houses = JSON.parse(savedHouses);
-			}
-		}
+	            houses = JSON.parse(savedHouses);
 
+	            houses.forEach(house => {
+		            if (Array.isArray(house.kranten)) {
+			            house.kranten = {
+				            mawo: house.kranten,
+				            dovr: [],
+				            za: []
+			            };
+		            }
+
+		            if (typeof house.checked === "boolean") {
+			            house.checked = {
+				            mawo: house.checked,
+				            dovr: false,
+				            za: false
+			            };
+		            }
+	            });
+            }
+		}
+        dayView.addEventListener("change", () => {
+	        renderList();
+        });
+        
 		function renderStreetList() {
 			street.innerHTML = "";
 			if (streets.length === 0) {
@@ -166,64 +213,86 @@
 		}
 
 		function renderReferenceList() {
-			reference.innerHTML = "";
-			houses.filter(h => h.street === street.value).forEach((house) => {
-				let option = document.createElement("option");
-				option.value = houses.indexOf(house);
-				option.textContent = `${house.number} ${house.kranten.join("/")}`;
-				reference.appendChild(option);
-			});
-		}
+	        reference.innerHTML = "";
 
-		function renderList() {
-			houseList.innerHTML = "";
-			let idCounter = 0;
+	        houses.filter(h => h.street === street.value).forEach((house) => {
+		        let option = document.createElement("option");
 
-			streets.forEach(streetName => {
-				let heading = document.createElement("h2");
-				heading.textContent = streetName;
-				houseList.appendChild(heading);
+		        let krantenText = [];
+		        Object.values(house.kranten).forEach(day => {
+			        krantenText.push(...day);
+		        });
 
-				houses.filter(h => h.street === streetName).forEach(house => {
-					let li = document.createElement("li");
-					let uniqueId = `chk-${streetName.replace(/\s/g, '-')}-${house.number}-${idCounter++}`;
+		        option.value = houses.indexOf(house);
+		        option.textContent = `${house.number} ${krantenText.join("/")}`;
+		        reference.appendChild(option);
+	        });
+        }
 
-					li.innerHTML = `
-						<div class="houseLeft">
-							<input type="checkbox" id="${uniqueId}">
-							<label for="${uniqueId}">
-								<strong>${house.number} ${house.kranten.join("/")}</strong>
-							</label>
-						</div>
-						<button class="deleteHouse">x</button>
-					`;
+            function renderList() {
+	            houseList.innerHTML = "";
+	            let idCounter = 0;
+	            const selectedDay = dayView.value;
 
-					let checkbox = li.querySelector("input");
-					checkbox.checked = house.checked || false;
+	            streets.forEach(streetName => {
+		            let heading = document.createElement("h2");
+		            heading.textContent = streetName;
+		            houseList.appendChild(heading);
 
-					checkbox.addEventListener("change", () => {
-						house.checked = checkbox.checked;
-						saveData();
-					});
+		            houses.filter(h => h.street === streetName).forEach(house => {
 
-					li.querySelector(".deleteHouse").addEventListener("click", () => {
-                        const confirmed = confirm(
-                            `Delete house ${house.number} (${house.kranten.join("/")})?`
-                        );
+			            if (house.kranten[selectedDay].length === 0) {
+				            return;
+			            }
 
-                        if (!confirmed) return;
+			            let li = document.createElement("li");
+			            let uniqueId = `chk-${streetName.replace(/\s/g, '-')}-${house.number}-${idCounter++}`;
 
-                        houses.splice(houses.indexOf(house), 1);
-                        saveData();
-                        renderList();
-                    });
-                    
-					houseList.appendChild(li);
-				});
-			});
+			            li.innerHTML = `
+				            <div class="houseLeft">
+					            <input type="checkbox" id="${uniqueId}">
+					            <label for="${uniqueId}">
+						            <strong>${house.number} ${house.kranten[selectedDay].join("/")}</strong>
+					            </label>
+				            </div>
+				            <button class="deleteHouse">x</button>
+			            `;
 
-			renderReferenceList();
-		}
+			            let checkbox = li.querySelector("input");
+
+			            if (typeof house.checked === "boolean") {
+				            house.checked = {
+					            mawo: house.checked,
+					            dovr: false,
+					            za: false
+				            };
+			            }
+
+			            checkbox.checked = house.checked[selectedDay];
+
+			            checkbox.addEventListener("change", () => {
+				            house.checked[selectedDay] = checkbox.checked;
+				            saveData();
+			            });
+
+			            li.querySelector(".deleteHouse").addEventListener("click", () => {
+				            const confirmed = confirm(
+					            `Delete house ${house.number} (${house.kranten[selectedDay].join("/")})?`
+				            );
+
+				            if (!confirmed) return;
+
+				            houses.splice(houses.indexOf(house), 1);
+				            saveData();
+				            renderList();
+			            });
+
+			            houseList.appendChild(li);
+		            });
+	            });
+
+	            renderReferenceList();
+            }
 
 		action.addEventListener("change", () => {
 			referenceContainer.style.display = action.value === "bij" ? "inline" : "none";
@@ -262,76 +331,162 @@
 		street.addEventListener("change", () => {
 			renderReferenceList();
 		});
+        function getSelectedDayGroups() {
+	        switch (days.value) {
+		        case "mawo":
+			        return ["mawo"];
 
-		submit.addEventListener("click", () => {
-			if (!street.value) {
-				alert("Add a street first.");
-				return;
-			}
-			const number = houseNumber.value.trim();
-			if (number === "") {
-				alert("Enter a house number.");
-				return;
-			}
-			const selectedKrant = krant.value;
+		        case "week":
+			        return ["mawo", "dovr", "za"];
 
-			if (action.value === "add") {
-				let existing = houses.find(h => h.street === street.value && h.number == number);
-				if (existing) {
-					if (!existing.kranten.includes(selectedKrant)) {
-						existing.kranten.push(selectedKrant);
-						existing.kranten.sort();
-					}
-				} else {
-					houses.push({
-						street: street.value,
-						number: number,
-						kranten: [selectedKrant],
-						checked: false
-					});
-				}
-			} else if (action.value === "bij") {
-				let existing = houses.find(h => h.street === street.value && h.number == number);
-				if (existing) {
-					if (!existing.kranten.includes(selectedKrant)) {
-						existing.kranten.push(selectedKrant);
-						existing.kranten.sort();
-					}
-				} else {
-					let newHouse = {
-						street: street.value,
-						number: number,
-						kranten: [selectedKrant],
-						checked: false
-					};
-					let referenceHouse = parseInt(reference.value);
-					if (isNaN(referenceHouse)) {
-						houses.push(newHouse);
-					} else {
-						houses.splice(referenceHouse, 0, newHouse);
-					}
-				}
-			} else if (action.value === "af") {
-				let existing = houses.find(h => h.street === street.value && h.number == number);
-				if (!existing) {
-					alert("House not found.");
-					return;
-				}
-				let index = existing.kranten.indexOf(selectedKrant);
-				if (index === -1) {
-					alert("This house doesn't have that newspaper.");
-					return;
-				}
-				existing.kranten.splice(index, 1);
-				if (existing.kranten.length === 0) {
-					houses.splice(houses.indexOf(existing), 1);
-				}
-			}
-			saveData();
-			renderList();
-			houseNumber.value = "";
-			houseNumber.focus();
-		});
+		        case "dovr":
+			        return ["dovr"];
+
+		        case "doza":
+			        return ["dovr", "za"];
+
+		        case "za":
+			        return ["za"];
+
+		        default:
+			        return [];
+	        }
+        }
+        submit.addEventListener("click", () => {
+	        if (!street.value) {
+		        alert("Add a street first.");
+		        return;
+	        }
+
+	        const number = houseNumber.value.trim();
+
+	        if (number === "") {
+		        alert("Enter a house number.");
+		        return;
+	        }
+
+	        const selectedKrant = krant.value;
+	        const selectedDays = getSelectedDayGroups();
+
+	        if (action.value === "add") {
+
+		        let existing = houses.find(
+			        h => h.street === street.value && h.number == number
+		        );
+
+		        if (existing) {
+
+			        selectedDays.forEach(day => {
+				        if (!existing.kranten[day].includes(selectedKrant)) {
+					        existing.kranten[day].push(selectedKrant);
+					        existing.kranten[day].sort();
+				        }
+			        });
+
+		        } else {
+
+			        let newHouse = {
+				        street: street.value,
+				        number: number,
+				        checked: {
+					        mawo: false,
+					        dovr: false,
+					        za: false
+				        },
+				        kranten: {
+					        mawo: [],
+					        dovr: [],
+					        za: []
+				        }
+			        };
+
+			        selectedDays.forEach(day => {
+				        newHouse.kranten[day].push(selectedKrant);
+			        });
+
+			        houses.push(newHouse);
+		        }
+
+	        } else if (action.value === "bij") {
+
+		        let existing = houses.find(
+			        h => h.street === street.value && h.number == number
+		        );
+
+		        if (existing) {
+
+			        selectedDays.forEach(day => {
+				        if (!existing.kranten[day].includes(selectedKrant)) {
+					        existing.kranten[day].push(selectedKrant);
+					        existing.kranten[day].sort();
+				        }
+			        });
+
+		        } else {
+
+			        let newHouse = {
+				        street: street.value,
+				        number: number,
+				        checked: {
+					        mawo: false,
+					        dovr: false,
+					        za: false
+				        },
+				        kranten: {
+					        mawo: [],
+					        dovr: [],
+					        za: []
+				        }
+			        };
+
+			        selectedDays.forEach(day => {
+				        newHouse.kranten[day].push(selectedKrant);
+			        });
+
+			        let referenceHouse = parseInt(reference.value);
+
+			        if (isNaN(referenceHouse)) {
+				        houses.push(newHouse);
+			        } else {
+				        houses.splice(referenceHouse, 0, newHouse);
+			        }
+		        }
+
+	        } else if (action.value === "af") {
+
+		        let existing = houses.find(
+			        h => h.street === street.value && h.number == number
+		        );
+
+		        if (!existing) {
+			        alert("House not found.");
+			        return;
+		        }
+
+		        selectedDays.forEach(day => {
+			        let index = existing.kranten[day].indexOf(selectedKrant);
+
+			        if (index !== -1) {
+				        existing.kranten[day].splice(index, 1);
+			        }
+		        });
+
+		        const hasAnyKranten =
+			        existing.kranten.mawo.length ||
+			        existing.kranten.dovr.length ||
+			        existing.kranten.za.length;
+
+		        if (!hasAnyKranten) {
+			        houses.splice(houses.indexOf(existing), 1);
+		        }
+	        }
+
+	        saveData();
+	        renderList();
+
+	        houseNumber.value = "";
+	        houseNumber.focus();
+        });
 
 		loadData();
 		renderStreetList();

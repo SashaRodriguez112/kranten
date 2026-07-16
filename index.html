@@ -205,11 +205,11 @@
 
 	</div>
 </div>
-	<br>
-	<br>
-	<br>
-	<br>
-	<br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
 	<script>
 		let streets = [];
 		let houses = [];
@@ -397,6 +397,11 @@
 				if (!confirmDelete) return;
 				houses = houses.filter(h => h.street !== name);
 			}
+			else (amount = 0)
+			    const confirmDelete = confirm("Delete street?");
+				if (!confirmDelete) return;
+				houses = houses.filter(h => h.street !== name);
+				
 			streets.splice(streets.indexOf(name), 1);
 			saveData();
 			renderStreetList();

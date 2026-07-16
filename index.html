@@ -329,15 +329,21 @@
 	            const selectedDay = dayView.value;
 
 	            streets.forEach(streetName => {
-		            let heading = document.createElement("h2");
-		            heading.textContent = streetName;
-		            houseList.appendChild(heading);
 
-		            houses.filter(h => h.street === streetName).forEach(house => {
+                const visibleHouses = houses.filter(h =>
+                    h.street === streetName &&
+                    h.kranten[selectedDay].length > 0
+                );
 
-			            if (house.kranten[selectedDay].length === 0) {
-				            return;
-			            }
+                    if (visibleHouses.length === 0) {
+                        return;
+                    }
+
+                    let heading = document.createElement("h2");
+                    heading.textContent = streetName;
+                    houseList.appendChild(heading);
+
+                    visibleHouses.forEach(house => {
 
 			            let li = document.createElement("li");
 			            let uniqueId = `chk-${streetName.replace(/\s/g, '-')}-${house.number}-${idCounter++}`;

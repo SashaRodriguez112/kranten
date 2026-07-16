@@ -11,9 +11,6 @@
 			font-family: Arial, sans-serif;
 			margin: 20px;
 		}
-		h1 {
-			color: turquoise;
-		}
 		h1 select {
 	        background: #002222;
 	        color: white;
@@ -22,11 +19,17 @@
 	        font-size: 22px;
 	        padding: 4px 10px;
 	        margin-left: 15px;
-	        position: relative;
-	        bottom: 3px;        
+	        position: relative;     
         }
-		h2 {
+		h1, h2 {
 			color: turquoise;
+		}
+		h1 {
+		padding-bottom: 10px;
+		}
+		#dayView {
+		position: relative;
+		bottom: 3px;
 		}
 		.controls {
 			display: flex;
@@ -116,6 +119,8 @@
 	        resize: vertical;
 	        box-sizing: border-box;
 	        margin-bottom: 15px;
+	        background-color: #000000;
+	        color: snow; 
         }
         .importOptions {
 	        display: flex;
@@ -126,18 +131,33 @@
 	        display: flex;
 	        gap: 10px;
         }
+        summary.header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            cursor: pointer;
+        }
+
+        summary.header h1 {
+            margin: 0;
+        }
+
+        summary.header select {
+            margin-left: 10px;
+        }
 	</style>
 </head>
 
 <body>
-
-	<h1>Krantenwijk
-        <select id="dayView">
-            <option value="mawo">Ma-Wo</option>
-            <option value="dovr">Do-Vr</option>
-            <option value="za">Za</option>
-        </select>
-    </h1>
+ <details>
+	<summary class="header">
+            <h1>Krantenwijk</h1>
+            <select id="dayView">
+                <option value="mawo">Ma-Wo</option>
+                <option value="dovr">Do-Vr</option>
+                <option value="za">Za</option>
+            </select>
+        </summary>
 
 	<div class="controls">
 		<select id="street"></select>
@@ -174,7 +194,7 @@
 		<button id="submit">Submit</button>
 		<button id="exportData">Export</button>
         <button id="importData">Import</button>
-	</div>
+	</div> </details>
 
 	<ul id="houseList"></ul>
     <div id="importPopup">
@@ -193,18 +213,17 @@
 			    </select>
 
 			    <select id="importMode">
+			        <option value="replace">Replace</option>
 				    <option value="add">Add</option>
-				    <option value="replace">Replace</option>
 			    </select>
 		    </div>
 
 		<div class="importButtons">
+		    <button id="cancelImport">Cancel</button>
 			<button id="confirmImport">Import</button>
-			<button id="cancelImport">Cancel</button>
 		</div>
-
 	</div>
-</div>
+  </div>
     <br>
     <br>
     <br>
@@ -397,11 +416,12 @@
 				if (!confirmDelete) return;
 				houses = houses.filter(h => h.street !== name);
 			}
-			else (amount = 0)
+			else {
 			    const confirmDelete = confirm("Delete street?");
 				if (!confirmDelete) return;
 				houses = houses.filter(h => h.street !== name);
-				
+			}
+			
 			streets.splice(streets.indexOf(name), 1);
 			saveData();
 			renderStreetList();

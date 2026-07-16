@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Test</title>
+	<title>Krantenwijk</title>
 	<style>
 		body {
 			background: #000;
@@ -91,6 +91,41 @@
 		.deleteHouse:hover {
 			background: #550000;
 		}
+		#importPopup {
+	        display: none;
+	        position: fixed;
+	        inset: 0;
+	        background: rgba(0,0,0,0.7);
+	        align-items: center;
+	        justify-content: center;
+	        z-index: 1000;
+        }
+        .importBox {
+	        background: #002222;
+	        border: 2px solid turquoise;
+	        border-radius: 12px;
+	        padding: 20px;
+	        width: min(500px, 90%);
+        }
+        .importBox h2 {
+	        margin-top: 0;
+        }
+        #importText {
+	        width: 100%;
+	        height: 180px;
+	        resize: vertical;
+	        box-sizing: border-box;
+	        margin-bottom: 15px;
+        }
+        .importOptions {
+	        display: flex;
+	        gap: 10px;
+	        margin-bottom: 15px;
+        }
+        .importButtons {
+	        display: flex;
+	        gap: 10px;
+        }
 	</style>
 </head>
 
@@ -137,10 +172,39 @@
 			<select id="reference"></select>
 		</span>
 		<button id="submit">Submit</button>
+		<button id="exportData">Export</button>
+        <button id="importData">Import</button>
 	</div>
 
 	<ul id="houseList"></ul>
+    <div id="importPopup">
+	    <div class="importBox">
 
+		    <h2>Import Route</h2>
+
+		    <textarea id="importText" placeholder="Paste exported route here"></textarea>
+
+		    <div class="importOptions">
+			    <select id="importDays">
+				    <option value="all">All days</option>
+				    <option value="mawo">Ma-Wo</option>
+				    <option value="dovr">Do-Vr</option>
+				    <option value="za">Za</option>
+			    </select>
+
+			    <select id="importMode">
+				    <option value="add">Add</option>
+				    <option value="replace">Replace</option>
+			    </select>
+		    </div>
+
+		<div class="importButtons">
+			<button id="confirmImport">Import</button>
+			<button id="cancelImport">Cancel</button>
+		</div>
+
+	</div>
+</div>
 	<script>
 		let streets = [];
 		let houses = [];
@@ -157,6 +221,14 @@
 		const submit = document.getElementById("submit");
 		const houseList = document.getElementById("houseList");
 		const dayView = document.getElementById("dayView");
+		const exportData = document.getElementById("exportData");
+        const importData = document.getElementById("importData");
+        const importPopup = document.getElementById("importPopup");
+        const importText = document.getElementById("importText");
+        const importDays = document.getElementById("importDays");
+        const importMode = document.getElementById("importMode");
+        const confirmImport = document.getElementById("confirmImport");
+        const cancelImport = document.getElementById("cancelImport");
 
 		function saveData() {
 			localStorage.setItem("streets", JSON.stringify(streets));
@@ -212,22 +284,20 @@
 			});
 		}
 
-		function renderReferenceList() {
-	        reference.innerHTML = "";
+		    function renderReferenceList() {
+	            reference.innerHTML = "";
 
-	        houses.filter(h => h.street === street.value).forEach((house) => {
-		        let option = document.createElement("option");
+	            houses.filter(h => h.street === street.value).forEach((house) => {
+		            let option = document.createElement("option");
 
-		        let krantenText = [];
-		        Object.values(house.kranten).forEach(day => {
-			        krantenText.push(...day);
-		        });
+		            const krantenText = [...new Set(Object.values(house.kranten).flat())];
 
-		        option.value = houses.indexOf(house);
-		        option.textContent = `${house.number} ${krantenText.join("/")}`;
-		        reference.appendChild(option);
-	        });
-        }
+		            option.value = houses.indexOf(house);
+		            option.textContent = `${house.number} ${krantenText.join("/")}`;
+
+		            reference.appendChild(option);
+	            });
+            }
 
             function renderList() {
 	            houseList.innerHTML = "";
@@ -327,7 +397,7 @@
 			renderStreetList();
 			renderList();
 		});
-
+        
 		street.addEventListener("change", () => {
 			renderReferenceList();
 		});
@@ -351,6 +421,100 @@
 		        default:
 			        return [];
 	        }
+        }
+        
+        function importRoute(data, mode, day) {
+
+	        if (!data.streets || !data.houses) {
+		        alert("Invalid route data.");
+		        return;
+	        }
+
+	        const days = day === "all"
+		        ? ["mawo", "dovr", "za"]
+		        : [day];
+
+	        if (mode === "replace") {
+
+		        if (day === "all") {
+			        streets = [];
+			        houses = [];
+
+		        } else {
+
+			        houses.forEach(house => {
+				        days.forEach(d => {
+					        house.kranten[d] = [];
+					        house.checked[d] = false;
+				        });
+			        });
+
+			        houses = houses.filter(house =>
+				        house.kranten.mawo.length ||
+				        house.kranten.dovr.length ||
+				        house.kranten.za.length
+			        );
+		        }
+	        }
+
+
+	        data.streets.forEach(name => {
+		        if (!streets.includes(name)) {
+			        streets.push(name);
+		        }
+	        });
+
+	        data.houses.forEach(importedHouse => {
+
+		        let existing = houses.find(h =>
+			        h.street === importedHouse.street &&
+			        h.number == importedHouse.number
+		        );
+
+
+		        if (!existing) {
+
+			        existing = {
+				        street: importedHouse.street,
+				        number: importedHouse.number,
+				        checked: {
+					        mawo: false,
+					        dovr: false,
+					        za: false
+				        },
+				        kranten: {
+					        mawo: [],
+					        dovr: [],
+					        za: []
+				        }
+			        };
+
+			        houses.push(existing);
+		        }
+
+
+		        days.forEach(d => {
+
+			        importedHouse.kranten[d].forEach(krant => {
+
+				        if (!existing.kranten[d].includes(krant)) {
+					        existing.kranten[d].push(krant);
+				        }
+
+			        });
+
+			        existing.kranten[d].sort();
+
+		        });
+
+	        });
+
+
+	        saveData();
+	        renderStreetList();
+	        renderList();
+
+	        alert("Import complete.");
         }
         submit.addEventListener("click", () => {
 	        if (!street.value) {
@@ -487,7 +651,55 @@
 	        houseNumber.value = "";
 	        houseNumber.focus();
         });
+        
+        exportData.addEventListener("click", async () => {
 
+	        const exportObject = {
+		        version: 1,
+		        streets,
+		        houses
+	        };
+
+	        const text = JSON.stringify(exportObject);
+
+	        await navigator.clipboard.writeText(text);
+
+	        alert("Route copied!");
+
+        });
+
+        cancelImport.addEventListener("click", () => {
+	        importPopup.style.display = "none";
+	        importText.value = "";
+        });
+
+
+        confirmImport.addEventListener("click", () => {
+
+	        let data;
+
+	        try {
+		        data = JSON.parse(importText.value);
+	        } catch {
+		        alert("Invalid route data.");
+		        return;
+	        }
+
+	        importRoute(
+		        data,
+		        importMode.value,
+		        importDays.value
+	        );
+
+	        importPopup.style.display = "none";
+	        importText.value = "";
+
+        });
+
+        importData.addEventListener("click", () => {
+	        importPopup.style.display = "flex";
+        });
+        
 		loadData();
 		renderStreetList();
 		renderList();

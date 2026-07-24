@@ -103,6 +103,15 @@
 	        justify-content: center;
 	        z-index: 1000;
         }
+        #exportPopup {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
         .importBox {
 	        background: #002222;
 	        border: 2px solid turquoise;
@@ -144,6 +153,40 @@
 
         summary.header select {
             margin-left: 10px;
+        }
+        #importFile {
+            margin-bottom: 15px;
+        }
+        .file-upload {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 10px;
+            margin-bottom: 15px;
+            padding: 10px;
+            width: fit-content;
+            border: 2px solid #20e0d0;
+            border-radius: 10px;
+        }
+
+        .file-button {
+            background: #000;
+            color: #eee;
+            border: 2px solid #20e0d0;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .file-button:hover {
+            background: #20e0d0;
+            color: #000;
+        }
+
+        #fileName {
+            color: #aaa;
+            font-size: 16px;
         }
 	</style>
 </head>
@@ -203,7 +246,12 @@
 		    <h2>Import Route</h2>
 
 		    <textarea id="importText" placeholder="Paste exported route here"></textarea>
-
+            <div class="file-upload">
+                <input type="file" id="importFile" accept=".json" hidden>
+                <label for="importFile" class="file-button">Choose route file</label>
+                <span id="fileName">No file selected</span>
+            </div>
+            
 		    <div class="importOptions">
 			    <select id="importDays">
 				    <option value="all">All days</option>
@@ -222,7 +270,28 @@
 		    <button id="cancelImport">Cancel</button>
 			<button id="confirmImport">Import</button>
 		</div>
-	</div>
+		</div>
+		</div>
+		<div id="exportPopup">
+            <div class="importBox">
+
+                <h2>Export Route</h2>
+
+                <p>Choose how you want to export your route.</p>
+
+                <div class="importButtons">
+                    <button id="copyExport">📋 Copy to Clipboard</button>
+                    <button id="downloadExport">📄 Download JSON</button>
+                </div>
+
+                <br>
+
+                <div class="importButtons">
+                    <button id="cancelExport">Cancel</button>
+                </div>
+
+            </div>
+        </div>
   </div>
     <br>
     <br>
@@ -253,7 +322,12 @@
         const importMode = document.getElementById("importMode");
         const confirmImport = document.getElementById("confirmImport");
         const cancelImport = document.getElementById("cancelImport");
-
+        const exportPopup = document.getElementById("exportPopup");
+        const copyExport = document.getElementById("copyExport");
+        const downloadExport = document.getElementById("downloadExport");
+        const cancelExport = document.getElementById("cancelExport");
+        const importFile = document.getElementById("importFile");
+        
 		function saveData() {
 			localStorage.setItem("streets", JSON.stringify(streets));
 			localStorage.setItem("houses", JSON.stringify(houses));
@@ -322,7 +396,53 @@
 		            reference.appendChild(option);
 	            });
             }
+            async function copyRoute() {
+                const exportObject = {
+                    version: 1,
+                    streets,
+                    houses
+                };
 
+                const text = JSON.stringify(exportObject);
+
+                try {
+                    await navigator.clipboard.writeText(text);
+                    alert("Route copied!");
+                    exportPopup.style.display = "none";
+                } catch {
+                    alert("Couldn't copy to the clipboard.");
+                }
+
+            }
+            copyExport.addEventListener("click", () => {
+                copyRoute();
+            });
+            
+            function downloadRoute() {
+                const exportObject = {
+                    version: 1,
+                    streets,
+                    houses
+                };
+
+                const text = JSON.stringify(exportObject, null, 2);
+
+                const blob = new Blob([text], {
+                    type: "application/json"
+                });
+
+                const url = URL.createObjectURL(blob);
+
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "krantenwijk-backup.json";
+                a.click();
+
+                URL.revokeObjectURL(url);
+
+                exportPopup.style.display = "none";
+            }
+            
             function renderList() {
 	            houseList.innerHTML = "";
 	            let idCounter = 0;
@@ -393,6 +513,10 @@
 
 	            renderReferenceList();
             }
+        document.getElementById("importFile").addEventListener("change", function() {
+            const fileName = this.files[0]?.name || "No file selected";
+            document.getElementById("fileName").textContent = fileName;
+        });
 
 		action.addEventListener("change", () => {
 			referenceContainer.style.display = action.value === "bij" ? "inline" : "none";
@@ -412,6 +536,25 @@
 			street.value = name;
 			renderList();
 		});
+		
+		importFile.addEventListener("change", () => {
+            const file = importFile.files[0];
+
+            if (!file) return;
+
+            const reader = new FileReader();
+
+            reader.onload = () => {
+                importText.value = reader.result;
+            };
+
+            reader.readAsText(file);
+
+        });
+		
+		downloadExport.addEventListener("click", () => {
+            downloadRoute();
+        });
 
 		removeStreet.addEventListener("click", () => {
 			if (!street.value) return;
@@ -688,27 +831,18 @@
 	        houseNumber.focus();
         });
         
-        exportData.addEventListener("click", async () => {
-
-	        const exportObject = {
-		        version: 1,
-		        streets,
-		        houses
-	        };
-
-	        const text = JSON.stringify(exportObject);
-
-	        await navigator.clipboard.writeText(text);
-
-	        alert("Route copied!");
-
+        exportData.addEventListener("click", () => {
+            exportPopup.style.display = "flex";
         });
 
         cancelImport.addEventListener("click", () => {
 	        importPopup.style.display = "none";
 	        importText.value = "";
         });
-
+         
+        cancelExport.addEventListener("click", () => {
+            exportPopup.style.display = "none";
+        });
 
         confirmImport.addEventListener("click", () => {
 

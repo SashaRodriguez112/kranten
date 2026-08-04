@@ -238,6 +238,7 @@
 		<button id="exportData">Export</button>
         <button id="importData">Import</button>
 	</div> </details>
+	<button id="clearChecked">Clear Checked</button>
 
 	<ul id="houseList"></ul>
     <div id="importPopup">
@@ -327,6 +328,7 @@
         const downloadExport = document.getElementById("downloadExport");
         const cancelExport = document.getElementById("cancelExport");
         const importFile = document.getElementById("importFile");
+								const clearChecked = document.getElementById("clearChecked");
         
 		function saveData() {
 			localStorage.setItem("streets", JSON.stringify(streets));
@@ -417,6 +419,28 @@
             copyExport.addEventListener("click", () => {
                 copyRoute();
             });
+ clearChecked.addEventListener("click", () => {
+
+    const selectedDay = dayView.value;
+
+    const anyChecked = houses.some(h => h.checked[selectedDay]);
+
+    if (!anyChecked) {
+        alert("Nothing is checked.");
+        return;
+    }
+
+    if (!confirm(`Clear all checked houses for ${selectedDay}?`)) {
+        return;
+    }
+
+    houses.forEach(house => {
+        house.checked[selectedDay] = false;
+    });
+
+    saveData();
+    renderList();
+});
             
             function downloadRoute() {
                 const exportObject = {

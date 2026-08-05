@@ -188,6 +188,16 @@
             color: #aaa;
             font-size: 16px;
         }
+        
+        #statsPopup {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
 	</style>
 </head>
 
@@ -237,7 +247,8 @@
 		<button id="submit">Submit</button>
 		<button id="exportData">Export</button>
         <button id="importData">Import</button>
-									<button id="clearChecked">Clear Checked</button>
+        <button id="statsButton">Stats</button>
+        <button id="clearChecked">Clear Checked</button>
 		</div> </details>
 
 	<ul id="houseList"></ul>
@@ -290,9 +301,30 @@
                 <div class="importButtons">
                     <button id="cancelExport">Cancel</button>
                 </div>
-
+               </div>
             </div>
-        </div>
+            <div id="statsPopup">
+                <div class="importBox">
+
+                    <h2>Route Statistics</h2>
+
+                    <select id="statsDay">
+                        <option value="mawo">Ma-Wo</option>
+                        <option value="dovr">Do-Vr</option>
+                        <option value="za">Za</option>
+                    </select>
+
+                    <br><br>
+
+                    <div id="statsContent"></div>
+
+                    <br>
+
+                    <div class="importButtons">
+                        <button id="closeStats">Close</button>
+                    </div>
+                </div>
+            </div>
   </div>
     <br>
     <br>
@@ -328,7 +360,12 @@
         const downloadExport = document.getElementById("downloadExport");
         const cancelExport = document.getElementById("cancelExport");
         const importFile = document.getElementById("importFile");
-								const clearChecked = document.getElementById("clearChecked");
+        const clearChecked = document.getElementById("clearChecked");
+        const statsButton = document.getElementById("statsButton");
+        const statsPopup = document.getElementById("statsPopup");
+        const statsDay = document.getElementById("statsDay");
+        const statsContent = document.getElementById("statsContent");
+        const closeStats = document.getElementById("closeStats");
         
 		function saveData() {
 			localStorage.setItem("streets", JSON.stringify(streets));
@@ -366,6 +403,58 @@
         dayView.addEventListener("change", () => {
 	        renderList();
         });
+        
+        function updateStats() {
+
+            const day = statsDay.value;
+
+            const counts = {
+                VK: 0,
+                HD: 0,
+                NRC: 0,
+                YC: 0,
+                HFD: 0,
+                TEL: 0,
+                TR: 0,
+                HP: 0,
+                AD: 0,
+                NYT: 0
+            };
+
+            let total = 0;
+            let houseCount = 0;
+
+            houses.forEach(house => {
+
+                if (house.kranten[day].length > 0) {
+                    houseCount++;
+                }
+
+                house.kranten[day].forEach(paper => {
+                    counts[paper]++;
+                    total++;
+                });
+
+            });
+
+            statsContent.innerHTML = `
+                <strong>VK:</strong> ${counts.VK}<br>
+                <strong>HD:</strong> ${counts.HD}<br>
+                <strong>NRC:</strong> ${counts.NRC}<br>
+                <strong>YC:</strong> ${counts.YC}<br>
+                <strong>HFD:</strong> ${counts.HFD}<br>
+                <strong>TEL:</strong> ${counts.TEL}<br>
+                <strong>TR:</strong> ${counts.TR}<br>
+                <strong>HP:</strong> ${counts.HP}<br>
+                <strong>AD:</strong> ${counts.AD}<br>
+                <strong>NYT:</strong> ${counts.NYT}<br>
+
+                <hr>
+
+                <strong>Total newspapers:</strong> ${total}<br>
+                <strong>Houses:</strong> ${houseCount}
+            `;
+        }
         
 		function renderStreetList() {
 			street.innerHTML = "";
@@ -419,28 +508,43 @@
             copyExport.addEventListener("click", () => {
                 copyRoute();
             });
- clearChecked.addEventListener("click", () => {
+            
+        statsButton.addEventListener("click", () => {
+                statsDay.value = dayView.value;
 
-    const selectedDay = dayView.value;
+                updateStats();
 
-    const anyChecked = houses.some(h => h.checked[selectedDay]);
+                statsPopup.style.display = "flex";
+            });
 
-    if (!anyChecked) {
-        alert("Nothing is checked.");
-        return;
-    }
+            statsDay.addEventListener("change", updateStats);
 
-    if (!confirm(`Clear all checked houses for ${selectedDay}?`)) {
-        return;
-    }
+            closeStats.addEventListener("click", () => {
+                statsPopup.style.display = "none";
+            });
+            
+        clearChecked.addEventListener("click", () => {
 
-    houses.forEach(house => {
-        house.checked[selectedDay] = false;
-    });
+            const selectedDay = dayView.value;
 
-    saveData();
-    renderList();
-});
+            const anyChecked = houses.some(h => h.checked[selectedDay]);
+
+            if (!anyChecked) {
+                alert("Nothing is checked.");
+                return;
+            }
+
+            if (!confirm(`Clear all checked houses for ${selectedDay}?`)) {
+                return;
+            }
+
+            houses.forEach(house => {
+                house.checked[selectedDay] = false;
+            });
+
+            saveData();
+            renderList();
+        });
             
             function downloadRoute() {
                 const exportObject = {
@@ -895,8 +999,24 @@
         });
         
 		loadData();
-		renderStreetList();
-		renderList();
+        const today = new Date().getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+
+        if (today >= 1 && today <= 3) {
+            // Monday, Tuesday, Wednesday
+            dayView.value = "mawo";
+        } else if (today >= 4 && today <= 5) {
+            // Thursday, Friday
+            dayView.value = "dovr";
+        } else if (today === 6) {
+            // Saturday
+            dayView.value = "za";
+        } else {
+            // Sunday (default)
+            dayView.value = "mawo";
+        }
+
+        renderStreetList();
+        renderList();
 	</script>
 
 </body>

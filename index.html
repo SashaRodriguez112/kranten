@@ -436,25 +436,55 @@
                 });
 
             });
+            
+            let html = "";
 
-            statsContent.innerHTML = `
-                <strong>VK:</strong> ${counts.VK}<br>
-                <strong>HD:</strong> ${counts.HD}<br>
-                <strong>NRC:</strong> ${counts.NRC}<br>
-                <strong>YC:</strong> ${counts.YC}<br>
-                <strong>HFD:</strong> ${counts.HFD}<br>
-                <strong>TEL:</strong> ${counts.TEL}<br>
-                <strong>TR:</strong> ${counts.TR}<br>
-                <strong>HP:</strong> ${counts.HP}<br>
-                <strong>AD:</strong> ${counts.AD}<br>
-                <strong>NYT:</strong> ${counts.NYT}<br>
+                const sorted = Object.entries(counts)
+                    .sort((a, b) => b[1] - a[1]);
 
-                <hr>
+                html += `<div style="font-size:17px;">`;
 
-                <strong>Total newspapers:</strong> ${total}<br>
-                <strong>Houses:</strong> ${houseCount}
-            `;
-        }
+                sorted
+                    .filter(([, amount]) => amount > 0) // Hide newspapers with 0
+                    .forEach(([paper, amount]) => {
+
+                        html += `
+                        <div style="
+                            display:flex;
+                            justify-content:space-between;
+                            align-items:center;
+                            padding:6px 0;
+                            border-bottom:1px solid rgba(64,224,208,.2);
+                        ">
+                            <span>${paper}</span>
+                            <strong>${amount}</strong>
+                        </div>
+                        `;
+                    });
+
+                html += `
+                </div>
+
+                <hr style="border-color:turquoise; margin:16px 0;">
+
+                <div style="display:flex;justify-content:space-between;padding:4px 0;">
+                    <span>Total papers</span>
+                    <strong>${total}</strong>
+                </div>
+
+                <div style="display:flex;justify-content:space-between;padding:4px 0;">
+                    <span>Houses</span>
+                    <strong>${houseCount}</strong>
+                </div>
+
+                <div style="display:flex;justify-content:space-between;padding:4px 0;">
+                    <span>Average / house</span>
+                    <strong>${houseCount ? (total / houseCount).toFixed(2) : "0.00"}</strong>
+                </div>
+                `;
+
+                statsContent.innerHTML = html;
+           }
         
 		function renderStreetList() {
 			street.innerHTML = "";

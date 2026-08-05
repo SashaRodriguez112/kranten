@@ -11,6 +11,7 @@
 			font-family: Arial, sans-serif;
 			margin: 20px;
 		}
+
 		h1 select {
 	        background: #002222;
 	        color: white;
@@ -21,16 +22,20 @@
 	        margin-left: 15px;
 	        position: relative;     
         }
+
 		h1, h2 {
 			color: turquoise;
 		}
+
 		h1 {
 		padding-bottom: 10px;
 		}
+
 		#dayView {
 		position: relative;
 		bottom: 3px;
 		}
+
 		.controls {
 			display: flex;
 			gap: 10px;
@@ -38,6 +43,7 @@
 			align-items: center;
 			margin-bottom: 20px;
 		}
+
 		input, select, button {
 			height: 40px;
 			border: 2px solid turquoise;
@@ -47,19 +53,24 @@
 			padding: 0 10px;
 			font-size: 16px;
 		}
+
 		button {
 			cursor: pointer;
 		}
+
 		button:hover {
 			background: #004444;
 		}
+
 		#referenceContainer {
 			display: none;
 		}
+
 		ul {
 			list-style: none;
 			padding: 0;
 		}
+
 		li {
 			width: max-content;
 			min-width: 300px;
@@ -73,6 +84,7 @@
 			align-items: center;
 			justify-content: space-between;
 		}
+
 		.houseLeft {
 			display: flex;
 			align-items: center;
@@ -82,18 +94,22 @@
 			-moz-user-select: none;
 			-ms-user-select: none;
 		}
+
 		input[type="checkbox"] {
 			width: 22px;
 			height: 22px;
 		}
+
 		.deleteHouse {
 			border-color: red;
 			background: #220000;
 			height: 35px;
 		}
+
 		.deleteHouse:hover {
 			background: #550000;
 		}
+
 		#importPopup {
 	        display: none;
 	        position: fixed;
@@ -103,6 +119,7 @@
 	        justify-content: center;
 	        z-index: 1000;
         }
+
         #exportPopup {
             display: none;
             position: fixed;
@@ -112,6 +129,7 @@
             justify-content: center;
             z-index: 1000;
         }
+
         .importBox {
 	        background: #002222;
 	        border: 2px solid turquoise;
@@ -119,9 +137,11 @@
 	        padding: 20px;
 	        width: min(500px, 90%);
         }
+
         .importBox h2 {
 	        margin-top: 0;
         }
+
         #importText {
 	        width: 100%;
 	        height: 180px;
@@ -131,15 +151,18 @@
 	        background-color: #000000;
 	        color: snow; 
         }
+
         .importOptions {
 	        display: flex;
 	        gap: 10px;
 	        margin-bottom: 15px;
         }
+
         .importButtons {
 	        display: flex;
 	        gap: 10px;
         }
+
         summary.header {
             display: flex;
             align-items: center;
@@ -154,9 +177,11 @@
         summary.header select {
             margin-left: 10px;
         }
+
         #importFile {
             margin-bottom: 15px;
         }
+
         .file-upload {
             display: flex;
             align-items: center;
@@ -168,7 +193,7 @@
             border: 2px solid #20e0d0;
             border-radius: 10px;
         }
-
+        
         .file-button {
             background: #000;
             color: #eee;
@@ -202,135 +227,125 @@
 </head>
 
 <body>
- <details>
-	<summary class="header">
-            <h1>Krantenwijk</h1>
-            <select id="dayView">
-                <option value="mawo">Ma-Wo</option>
-                <option value="dovr">Do-Vr</option>
-                <option value="za">Za</option>
-            </select>
-        </summary>
+	<div>
+		<details>
+			<summary class="header">
+				<h1>Krantenwijk</h1>
+				<select id="dayView">
+					<option value="mawo">Ma-Wo</option>
+					<option value="dovr">Do-Vr</option>
+					<option value="za">Za</option>
+				</select>
+			</summary>
 
-	<div class="controls">
-		<select id="street"></select>
-		<button id="addStreet">+ Street</button>
-		<button id="removeStreet">- Street</button>
-		<input type="number" id="houseNumber" placeholder="House number">
-		<select id="krant">
-			<option>VK</option>
-			<option>HD</option>
-			<option>NRC</option>
-			<option>YC</option>
-			<option>HFD</option>
-			<option>TEL</option>
-			<option>TR</option>
-			<option>HP</option>
-			<option>AD</option>
-			<option>NYT</option>
-		</select>
-		<select id="action">
-			<option value="add">Add</option>
-			<option value="bij">Bij</option>
-			<option value="af">Af</option>
-		</select>
-		<select id="days">
-	        <option value="mawo">Ma-Wo</option>
-	        <option value="week">Ma-Za</option>
-	        <option value="dovr">Do-Vr</option>
-	        <option value="doza">Do-Za</option>
-	        <option value="za">Za</option>
-        </select>
-		<span id="referenceContainer">
-			<select id="reference"></select>
-		</span>
-		<button id="submit">Submit</button>
-		<button id="exportData">Export</button>
-        <button id="importData">Import</button>
-        <button id="statsButton">Stats</button>
-        <button id="clearChecked">Clear Checked</button>
-		</div> </details>
+			<div class="controls">
+				<select id="street"></select>
+				<button id="addStreet">+ Street</button>
+				<button id="removeStreet">- Street</button>
+				<input type="number" id="houseNumber" placeholder="House number">
+				<select id="krant">
+					<option>VK</option>
+					<option>HD</option>
+					<option>NRC</option>
+					<option>YC</option>
+					<option>HFD</option>
+					<option>TEL</option>
+					<option>TR</option>
+					<option>HP</option>
+					<option>AD</option>
+					<option>NYT</option>
+				</select>
+				<select id="action">
+					<option value="add">Add</option>
+					<option value="bij">Bij</option>
+					<option value="af">Af</option>
+				</select>
+				<select id="days">
+					<option value="mawo">Ma-Wo</option>
+					<option value="week">Ma-Za</option>
+					<option value="dovr">Do-Vr</option>
+					<option value="doza">Do-Za</option>
+					<option value="za">Za</option>
+				</select>
+				<span id="referenceContainer">
+					<select id="reference"></select>
+				</span>
+				<button id="submit">Submit</button>
+				<button id="exportData">Export</button>
+				<button id="importData">Import</button>
+				<button id="statsButton">Stats</button>
+				<button id="clearChecked">Clear Checked</button>
+			</div>
+		</details>
 
-	<ul id="houseList"></ul>
-    <div id="importPopup">
-	    <div class="importBox">
+		<ul id="houseList"></ul>
+	</div>
 
-		    <h2>Import Route</h2>
-
-		    <textarea id="importText" placeholder="Paste exported route here"></textarea>
-            <div class="file-upload">
-                <input type="file" id="importFile" accept=".json" hidden>
-                <label for="importFile" class="file-button">Choose route file</label>
-                <span id="fileName">No file selected</span>
-            </div>
-            
-		    <div class="importOptions">
-			    <select id="importDays">
-				    <option value="all">All days</option>
-				    <option value="mawo">Ma-Wo</option>
-				    <option value="dovr">Do-Vr</option>
-				    <option value="za">Za</option>
-			    </select>
-
-			    <select id="importMode">
-			        <option value="replace">Replace</option>
-				    <option value="add">Add</option>
-			    </select>
-		    </div>
-
-		<div class="importButtons">
-		    <button id="cancelImport">Cancel</button>
-			<button id="confirmImport">Import</button>
+	<div id="importPopup">
+		<div class="importBox">
+			<h2>Import Route</h2>
+			<textarea id="importText" placeholder="Paste exported route here"></textarea>
+			<div class="file-upload">
+				<input type="file" id="importFile" accept=".json" hidden>
+				<label for="importFile" class="file-button">Choose route file</label>
+				<span id="fileName">No file selected</span>
+			</div>
+			<div class="importOptions">
+				<select id="importDays">
+					<option value="all">All days</option>
+					<option value="mawo">Ma-Wo</option>
+					<option value="dovr">Do-Vr</option>
+					<option value="za">Za</option>
+				</select>
+				<select id="importMode">
+					<option value="replace">Replace</option>
+					<option value="add">Add</option>
+				</select>
+			</div>
+			<div class="importButtons">
+				<button id="cancelImport">Cancel</button>
+				<button id="confirmImport">Import</button>
+			</div>
 		</div>
+	</div>
+
+	<div id="exportPopup">
+		<div class="importBox">
+			<h2>Export Route</h2>
+			<p>Choose how you want to export your route.</p>
+			<br>
+			<div class="importButtons">
+				<button id="copyExport">📋 Copy to Clipboard</button>
+				<button id="downloadExport">📄 Download JSON</button>
+			</div>
+			<br>
+			<div class="importButtons">
+				<button id="cancelExport">Cancel</button>
+			</div>
 		</div>
+	</div>
+
+	<div id="statsPopup">
+		<div class="importBox">
+			<h2>Route Statistics</h2>
+			<select id="statsDay">
+				<option value="mawo">Ma-Wo</option>
+				<option value="dovr">Do-Vr</option>
+				<option value="za">Za</option>
+			</select>
+			<br><br>
+			<div id="statsContent"></div>
+			<br>
+			<div class="importButtons">
+				<button id="closeStats">Close</button>
+			</div>
 		</div>
-		<div id="exportPopup">
-            <div class="importBox">
-
-                <h2>Export Route</h2>
-
-                <p>Choose how you want to export your route.</p>
-
-                <div class="importButtons">
-                    <button id="copyExport">📋 Copy to Clipboard</button>
-                    <button id="downloadExport">📄 Download JSON</button>
-                </div>
-
-                <br>
-
-                <div class="importButtons">
-                    <button id="cancelExport">Cancel</button>
-                </div>
-               </div>
-            </div>
-            <div id="statsPopup">
-                <div class="importBox">
-
-                    <h2>Route Statistics</h2>
-
-                    <select id="statsDay">
-                        <option value="mawo">Ma-Wo</option>
-                        <option value="dovr">Do-Vr</option>
-                        <option value="za">Za</option>
-                    </select>
-
-                    <br><br>
-
-                    <div id="statsContent"></div>
-
-                    <br>
-
-                    <div class="importButtons">
-                        <button id="closeStats">Close</button>
-                    </div>
-                </div>
-            </div>
-  </div>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
+	</div>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
 	<script>
 		let streets = [];
 		let houses = [];
@@ -348,25 +363,25 @@
 		const houseList = document.getElementById("houseList");
 		const dayView = document.getElementById("dayView");
 		const exportData = document.getElementById("exportData");
-        const importData = document.getElementById("importData");
-        const importPopup = document.getElementById("importPopup");
-        const importText = document.getElementById("importText");
-        const importDays = document.getElementById("importDays");
-        const importMode = document.getElementById("importMode");
-        const confirmImport = document.getElementById("confirmImport");
-        const cancelImport = document.getElementById("cancelImport");
-        const exportPopup = document.getElementById("exportPopup");
-        const copyExport = document.getElementById("copyExport");
-        const downloadExport = document.getElementById("downloadExport");
-        const cancelExport = document.getElementById("cancelExport");
-        const importFile = document.getElementById("importFile");
-        const clearChecked = document.getElementById("clearChecked");
-        const statsButton = document.getElementById("statsButton");
-        const statsPopup = document.getElementById("statsPopup");
-        const statsDay = document.getElementById("statsDay");
-        const statsContent = document.getElementById("statsContent");
-        const closeStats = document.getElementById("closeStats");
-        
+		const importData = document.getElementById("importData");
+		const importPopup = document.getElementById("importPopup");
+		const importText = document.getElementById("importText");
+		const importDays = document.getElementById("importDays");
+		const importMode = document.getElementById("importMode");
+		const confirmImport = document.getElementById("confirmImport");
+		const cancelImport = document.getElementById("cancelImport");
+		const exportPopup = document.getElementById("exportPopup");
+		const copyExport = document.getElementById("copyExport");
+		const downloadExport = document.getElementById("downloadExport");
+		const cancelExport = document.getElementById("cancelExport");
+		const importFile = document.getElementById("importFile");
+		const clearChecked = document.getElementById("clearChecked");
+		const statsButton = document.getElementById("statsButton");
+		const statsPopup = document.getElementById("statsPopup");
+		const statsDay = document.getElementById("statsDay");
+		const statsContent = document.getElementById("statsContent");
+		const closeStats = document.getElementById("closeStats");
+
 		function saveData() {
 			localStorage.setItem("streets", JSON.stringify(streets));
 			localStorage.setItem("houses", JSON.stringify(houses));
@@ -379,76 +394,73 @@
 				streets = JSON.parse(savedStreets);
 			}
 			if (savedHouses) {
-	            houses = JSON.parse(savedHouses);
+				houses = JSON.parse(savedHouses);
 
-	            houses.forEach(house => {
-		            if (Array.isArray(house.kranten)) {
-			            house.kranten = {
-				            mawo: house.kranten,
-				            dovr: [],
-				            za: []
-			            };
-		            }
+				houses.forEach(house => {
+					if (Array.isArray(house.kranten)) {
+						house.kranten = {
+							mawo: house.kranten,
+							dovr: [],
+							za: []
+						};
+					}
 
-		            if (typeof house.checked === "boolean") {
-			            house.checked = {
-				            mawo: house.checked,
-				            dovr: false,
-				            za: false
-			            };
-		            }
-	            });
-            }
+					if (typeof house.checked === "boolean") {
+						house.checked = {
+							mawo: house.checked,
+							dovr: false,
+							za: false
+						};
+					}
+				});
+			}
 		}
-        dayView.addEventListener("change", () => {
-	        renderList();
-        });
-        
-        function updateStats() {
 
-            const day = statsDay.value;
+		dayView.addEventListener("change", () => {
+			renderList();
+		});
 
-            const counts = {
-                VK: 0,
-                HD: 0,
-                NRC: 0,
-                YC: 0,
-                HFD: 0,
-                TEL: 0,
-                TR: 0,
-                HP: 0,
-                AD: 0,
-                NYT: 0
-            };
+		function updateStats() {
+			const day = statsDay.value;
 
-            let total = 0;
-            let houseCount = 0;
+			const counts = {
+				VK: 0,
+				HD: 0,
+				NRC: 0,
+				YC: 0,
+				HFD: 0,
+				TEL: 0,
+				TR: 0,
+				HP: 0,
+				AD: 0,
+				NYT: 0
+			};
 
-            houses.forEach(house => {
+			let total = 0;
+			let houseCount = 0;
 
-                if (house.kranten[day].length > 0) {
-                    houseCount++;
-                }
+			houses.forEach(house => {
+				if (house.kranten[day].length > 0) {
+					houseCount++;
+				}
 
-                house.kranten[day].forEach(paper => {
-                    counts[paper]++;
-                    total++;
-                });
+				house.kranten[day].forEach(paper => {
+					counts[paper]++;
+					total++;
+				});
+			});
 
-            });
-            
-            let html = "";
+			let html = "";
 
-                const sorted = Object.entries(counts)
-                    .sort((a, b) => b[1] - a[1]);
+			const sorted = Object.entries(counts)
+				.sort((a, b) => b[1] - a[1]);
 
-                html += `<div style="font-size:17px;">`;
+			html += `<div style="font-size:17px;">`;
 
-                sorted
-                    .filter(([, amount]) => amount > 0) // Hide newspapers with 0
-                    .forEach(([paper, amount]) => {
-
-                        html += `
+			sorted
+				.filter(([, amount]) => amount > 0)
+				.forEach(([paper, amount]) => {
+					html += `
                         <div style="
                             display:flex;
                             justify-content:space-between;
@@ -459,10 +471,10 @@
                             <span>${paper}</span>
                             <strong>${amount}</strong>
                         </div>
-                        `;
-                    });
+                    `;
+				});
 
-                html += `
+			html += `
                 </div>
 
                 <hr style="border-color:turquoise; margin:16px 0;">
@@ -481,11 +493,11 @@
                     <span>Average / house</span>
                     <strong>${houseCount ? (total / houseCount).toFixed(2) : "0.00"}</strong>
                 </div>
-                `;
+            `;
 
-                statsContent.innerHTML = html;
-           }
-        
+			statsContent.innerHTML = html;
+		}
+
 		function renderStreetList() {
 			street.innerHTML = "";
 			if (streets.length === 0) {
@@ -503,178 +515,180 @@
 			});
 		}
 
-		    function renderReferenceList() {
-	            reference.innerHTML = "";
+		function renderReferenceList() {
+			reference.innerHTML = "";
 
-	            houses.filter(h => h.street === street.value).forEach((house) => {
-		            let option = document.createElement("option");
+			houses.filter(h => h.street === street.value).forEach((house) => {
+				let option = document.createElement("option");
 
-		            const krantenText = [...new Set(Object.values(house.kranten).flat())];
+				const krantenText = [...new Set(Object.values(house.kranten).flat())];
 
-		            option.value = houses.indexOf(house);
-		            option.textContent = `${house.number} ${krantenText.join("/")}`;
+				option.value = houses.indexOf(house);
+				option.textContent = `${house.number} ${krantenText.join("/")}`;
 
-		            reference.appendChild(option);
-	            });
-            }
-            async function copyRoute() {
-                const exportObject = {
-                    version: 1,
-                    streets,
-                    houses
-                };
+				reference.appendChild(option);
+			});
+		}
 
-                const text = JSON.stringify(exportObject);
+		async function copyRoute() {
+			const exportObject = {
+				version: 1,
+				streets,
+				houses
+			};
 
-                try {
-                    await navigator.clipboard.writeText(text);
-                    alert("Route copied!");
-                    exportPopup.style.display = "none";
-                } catch {
-                    alert("Couldn't copy to the clipboard.");
-                }
+			const text = JSON.stringify(exportObject);
 
-            }
-            copyExport.addEventListener("click", () => {
-                copyRoute();
-            });
-            
-        statsButton.addEventListener("click", () => {
-                statsDay.value = dayView.value;
+			try {
+				await navigator.clipboard.writeText(text);
+				alert("Route copied!");
+				exportPopup.style.display = "none";
+			} catch {
+				alert("Couldn't copy to the clipboard.");
+			}
+		}
 
-                updateStats();
+		copyExport.addEventListener("click", () => {
+			copyRoute();
+		});
 
-                statsPopup.style.display = "flex";
-            });
+		statsButton.addEventListener("click", () => {
+			statsDay.value = dayView.value;
 
-            statsDay.addEventListener("change", updateStats);
+			updateStats();
 
-            closeStats.addEventListener("click", () => {
-                statsPopup.style.display = "none";
-            });
-            
-        clearChecked.addEventListener("click", () => {
+			statsPopup.style.display = "flex";
+		});
 
-            const selectedDay = dayView.value;
+		statsDay.addEventListener("change", updateStats);
 
-            const anyChecked = houses.some(h => h.checked[selectedDay]);
+		closeStats.addEventListener("click", () => {
+			statsPopup.style.display = "none";
+		});
 
-            if (!anyChecked) {
-                alert("Nothing is checked.");
-                return;
-            }
+		clearChecked.addEventListener("click", () => {
 
-            if (!confirm(`Clear all checked houses for ${selectedDay}?`)) {
-                return;
-            }
+			const selectedDay = dayView.value;
 
-            houses.forEach(house => {
-                house.checked[selectedDay] = false;
-            });
+			const anyChecked = houses.some(h => h.checked[selectedDay]);
 
-            saveData();
-            renderList();
-        });
-            
-            function downloadRoute() {
-                const exportObject = {
-                    version: 1,
-                    streets,
-                    houses
-                };
+			if (!anyChecked) {
+				alert("Nothing is checked.");
+				return;
+			}
 
-                const text = JSON.stringify(exportObject, null, 2);
+			if (!confirm(`Clear all checked houses for ${selectedDay}?`)) {
+				return;
+			}
 
-                const blob = new Blob([text], {
-                    type: "application/json"
-                });
+			houses.forEach(house => {
+				house.checked[selectedDay] = false;
+			});
 
-                const url = URL.createObjectURL(blob);
+			saveData();
+			renderList();
+		});
 
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = "krantenwijk-backup.json";
-                a.click();
+		function downloadRoute() {
+			const exportObject = {
+				version: 1,
+				streets,
+				houses
+			};
 
-                URL.revokeObjectURL(url);
+			const text = JSON.stringify(exportObject, null, 2);
 
-                exportPopup.style.display = "none";
-            }
-            
-            function renderList() {
-	            houseList.innerHTML = "";
-	            let idCounter = 0;
-	            const selectedDay = dayView.value;
+			const blob = new Blob([text], {
+				type: "application/json"
+			});
 
-	            streets.forEach(streetName => {
+			const url = URL.createObjectURL(blob);
 
-                const visibleHouses = houses.filter(h =>
-                    h.street === streetName &&
-                    h.kranten[selectedDay].length > 0
-                );
+			const a = document.createElement("a");
+			a.href = url;
+			a.download = "krantenwijk-backup.json";
+			a.click();
 
-                    if (visibleHouses.length === 0) {
-                        return;
-                    }
+			URL.revokeObjectURL(url);
 
-                    let heading = document.createElement("h2");
-                    heading.textContent = streetName;
-                    houseList.appendChild(heading);
+			exportPopup.style.display = "none";
+		}
 
-                    visibleHouses.forEach(house => {
+		function renderList() {
+			houseList.innerHTML = "";
+			let idCounter = 0;
+			const selectedDay = dayView.value;
 
-			            let li = document.createElement("li");
-			            let uniqueId = `chk-${streetName.replace(/\s/g, '-')}-${house.number}-${idCounter++}`;
+			streets.forEach(streetName => {
 
-			            li.innerHTML = `
-				            <div class="houseLeft">
-					            <input type="checkbox" id="${uniqueId}">
-					            <label for="${uniqueId}">
-						            <strong>${house.number} ${house.kranten[selectedDay].join("/")}</strong>
-					            </label>
-				            </div>
-				            <button class="deleteHouse">x</button>
-			            `;
+				const visibleHouses = houses.filter(h =>
+					h.street === streetName &&
+					h.kranten[selectedDay].length > 0
+				);
 
-			            let checkbox = li.querySelector("input");
+				if (visibleHouses.length === 0) {
+					return;
+				}
 
-			            if (typeof house.checked === "boolean") {
-				            house.checked = {
-					            mawo: house.checked,
-					            dovr: false,
-					            za: false
-				            };
-			            }
+				let heading = document.createElement("h2");
+				heading.textContent = streetName;
+				houseList.appendChild(heading);
 
-			            checkbox.checked = house.checked[selectedDay];
+				visibleHouses.forEach(house => {
 
-			            checkbox.addEventListener("change", () => {
-				            house.checked[selectedDay] = checkbox.checked;
-				            saveData();
-			            });
+					let li = document.createElement("li");
+					let uniqueId = `chk-${streetName.replace(/\s/g, '-')}-${house.number}-${idCounter++}`;
 
-			            li.querySelector(".deleteHouse").addEventListener("click", () => {
-				            const confirmed = confirm(
-					            `Delete house ${house.number} (${house.kranten[selectedDay].join("/")})?`
-				            );
+					li.innerHTML = `
+                        <div class="houseLeft">
+                            <input type="checkbox" id="${uniqueId}">
+                            <label for="${uniqueId}">
+                                <strong>${house.number} ${house.kranten[selectedDay].join("/")}</strong>
+                            </label>
+                        </div>
+                        <button class="deleteHouse">x</button>
+                    `;
 
-				            if (!confirmed) return;
+					let checkbox = li.querySelector("input");
 
-				            houses.splice(houses.indexOf(house), 1);
-				            saveData();
-				            renderList();
-			            });
+					if (typeof house.checked === "boolean") {
+						house.checked = {
+							mawo: house.checked,
+							dovr: false,
+							za: false
+						};
+					}
 
-			            houseList.appendChild(li);
-		            });
-	            });
+					checkbox.checked = house.checked[selectedDay];
 
-	            renderReferenceList();
-            }
-        document.getElementById("importFile").addEventListener("change", function() {
-            const fileName = this.files[0]?.name || "No file selected";
-            document.getElementById("fileName").textContent = fileName;
-        });
+					checkbox.addEventListener("change", () => {
+						house.checked[selectedDay] = checkbox.checked;
+						saveData();
+					});
+
+					li.querySelector(".deleteHouse").addEventListener("click", () => {
+						const confirmed = confirm(
+							`Delete house ${house.number} (${house.kranten[selectedDay].join("/")})?`
+						);
+
+						if (!confirmed) return;
+
+						houses.splice(houses.indexOf(house), 1);
+						saveData();
+						renderList();
+					});
+
+					houseList.appendChild(li);
+				});
+			});
+
+			renderReferenceList();
+		}
+
+		document.getElementById("importFile").addEventListener("change", function() {
+			const fileName = this.files[0]?.name || "No file selected";
+			document.getElementById("fileName").textContent = fileName;
+		});
 
 		action.addEventListener("change", () => {
 			referenceContainer.style.display = action.value === "bij" ? "inline" : "none";
@@ -694,25 +708,24 @@
 			street.value = name;
 			renderList();
 		});
-		
+
 		importFile.addEventListener("change", () => {
-            const file = importFile.files[0];
+			const file = importFile.files[0];
 
-            if (!file) return;
+			if (!file) return;
 
-            const reader = new FileReader();
+			const reader = new FileReader();
 
-            reader.onload = () => {
-                importText.value = reader.result;
-            };
+			reader.onload = () => {
+				importText.value = reader.result;
+			};
 
-            reader.readAsText(file);
+			reader.readAsText(file);
+		});
 
-        });
-		
 		downloadExport.addEventListener("click", () => {
-            downloadRoute();
-        });
+			downloadRoute();
+		});
 
 		removeStreet.addEventListener("click", () => {
 			if (!street.value) return;
@@ -722,332 +735,332 @@
 				const confirmDelete = confirm("This street still has houses. Delete everything?");
 				if (!confirmDelete) return;
 				houses = houses.filter(h => h.street !== name);
-			}
-			else {
-			    const confirmDelete = confirm("Delete street?");
+			} else {
+				const confirmDelete = confirm("Delete street?");
 				if (!confirmDelete) return;
 				houses = houses.filter(h => h.street !== name);
 			}
-			
+
 			streets.splice(streets.indexOf(name), 1);
 			saveData();
 			renderStreetList();
 			renderList();
 		});
-        
+
 		street.addEventListener("change", () => {
 			renderReferenceList();
 		});
-        function getSelectedDayGroups() {
-	        switch (days.value) {
-		        case "mawo":
-			        return ["mawo"];
 
-		        case "week":
-			        return ["mawo", "dovr", "za"];
+		function getSelectedDayGroups() {
+			switch (days.value) {
+				case "mawo":
+					return ["mawo"];
 
-		        case "dovr":
-			        return ["dovr"];
+				case "week":
+					return ["mawo", "dovr", "za"];
 
-		        case "doza":
-			        return ["dovr", "za"];
+				case "dovr":
+					return ["dovr"];
 
-		        case "za":
-			        return ["za"];
+				case "doza":
+					return ["dovr", "za"];
 
-		        default:
-			        return [];
-	        }
-        }
-        
-        function importRoute(data, mode, day) {
+				case "za":
+					return ["za"];
 
-	        if (!data.streets || !data.houses) {
-		        alert("Invalid route data.");
-		        return;
-	        }
+				default:
+					return [];
+			}
+		}
 
-	        const days = day === "all"
-		        ? ["mawo", "dovr", "za"]
-		        : [day];
+		function importRoute(data, mode, day) {
 
-	        if (mode === "replace") {
+			if (!data.streets || !data.houses) {
+				alert("Invalid route data.");
+				return;
+			}
 
-		        if (day === "all") {
-			        streets = [];
-			        houses = [];
+			const days = day === "all"
+	            ? ["mawo", "dovr", "za"]
+	            : [day];
 
-		        } else {
+			if (mode === "replace") {
 
-			        houses.forEach(house => {
-				        days.forEach(d => {
-					        house.kranten[d] = [];
-					        house.checked[d] = false;
-				        });
-			        });
+				if (day === "all") {
+					streets = [];
+					houses = [];
 
-			        houses = houses.filter(house =>
-				        house.kranten.mawo.length ||
-				        house.kranten.dovr.length ||
-				        house.kranten.za.length
-			        );
-		        }
-	        }
+				} else {
 
+					houses.forEach(house => {
+						daysToImport.forEach(d => {
+							house.kranten[d] = [];
+							house.checked[d] = false;
+						});
+					});
 
-	        data.streets.forEach(name => {
-		        if (!streets.includes(name)) {
-			        streets.push(name);
-		        }
-	        });
-
-	        data.houses.forEach(importedHouse => {
+					houses = houses.filter(house =>
+						house.kranten.mawo.length ||
+						house.kranten.dovr.length ||
+						house.kranten.za.length
+					);
+				}
+			}
 
-		        let existing = houses.find(h =>
-			        h.street === importedHouse.street &&
-			        h.number == importedHouse.number
-		        );
-
 
-		        if (!existing) {
+			data.streets.forEach(name => {
+				if (!streets.includes(name)) {
+					streets.push(name);
+				}
+			});
 
-			        existing = {
-				        street: importedHouse.street,
-				        number: importedHouse.number,
-				        checked: {
-					        mawo: false,
-					        dovr: false,
-					        za: false
-				        },
-				        kranten: {
-					        mawo: [],
-					        dovr: [],
-					        za: []
-				        }
-			        };
+			data.houses.forEach(importedHouse => {
 
-			        houses.push(existing);
-		        }
+				let existing = houses.find(h =>
+					h.street === importedHouse.street &&
+					h.number == importedHouse.number
+				);
 
 
-		        days.forEach(d => {
-
-			        importedHouse.kranten[d].forEach(krant => {
-
-				        if (!existing.kranten[d].includes(krant)) {
-					        existing.kranten[d].push(krant);
-				        }
-
-			        });
-
-			        existing.kranten[d].sort();
-
-		        });
-
-	        });
-
-
-	        saveData();
-	        renderStreetList();
-	        renderList();
-
-	        alert("Import complete.");
-        }
-        submit.addEventListener("click", () => {
-	        if (!street.value) {
-		        alert("Add a street first.");
-		        return;
-	        }
-
-	        const number = houseNumber.value.trim();
-
-	        if (number === "") {
-		        alert("Enter a house number.");
-		        return;
-	        }
-
-	        const selectedKrant = krant.value;
-	        const selectedDays = getSelectedDayGroups();
-
-	        if (action.value === "add") {
-
-		        let existing = houses.find(
-			        h => h.street === street.value && h.number == number
-		        );
-
-		        if (existing) {
-
-			        selectedDays.forEach(day => {
-				        if (!existing.kranten[day].includes(selectedKrant)) {
-					        existing.kranten[day].push(selectedKrant);
-					        existing.kranten[day].sort();
-				        }
-			        });
-
-		        } else {
-
-			        let newHouse = {
-				        street: street.value,
-				        number: number,
-				        checked: {
-					        mawo: false,
-					        dovr: false,
-					        za: false
-				        },
-				        kranten: {
-					        mawo: [],
-					        dovr: [],
-					        za: []
-				        }
-			        };
-
-			        selectedDays.forEach(day => {
-				        newHouse.kranten[day].push(selectedKrant);
-			        });
-
-			        houses.push(newHouse);
-		        }
-
-	        } else if (action.value === "bij") {
-
-		        let existing = houses.find(
-			        h => h.street === street.value && h.number == number
-		        );
-
-		        if (existing) {
-
-			        selectedDays.forEach(day => {
-				        if (!existing.kranten[day].includes(selectedKrant)) {
-					        existing.kranten[day].push(selectedKrant);
-					        existing.kranten[day].sort();
-				        }
-			        });
-
-		        } else {
-
-			        let newHouse = {
-				        street: street.value,
-				        number: number,
-				        checked: {
-					        mawo: false,
-					        dovr: false,
-					        za: false
-				        },
-				        kranten: {
-					        mawo: [],
-					        dovr: [],
-					        za: []
-				        }
-			        };
-
-			        selectedDays.forEach(day => {
-				        newHouse.kranten[day].push(selectedKrant);
-			        });
-
-			        let referenceHouse = parseInt(reference.value);
-
-			        if (isNaN(referenceHouse)) {
-				        houses.push(newHouse);
-			        } else {
-				        houses.splice(referenceHouse, 0, newHouse);
-			        }
-		        }
-
-	        } else if (action.value === "af") {
-
-		        let existing = houses.find(
-			        h => h.street === street.value && h.number == number
-		        );
-
-		        if (!existing) {
-			        alert("House not found.");
-			        return;
-		        }
-
-		        selectedDays.forEach(day => {
-			        let index = existing.kranten[day].indexOf(selectedKrant);
-
-			        if (index !== -1) {
-				        existing.kranten[day].splice(index, 1);
-			        }
-		        });
-
-		        const hasAnyKranten =
-			        existing.kranten.mawo.length ||
-			        existing.kranten.dovr.length ||
-			        existing.kranten.za.length;
-
-		        if (!hasAnyKranten) {
-			        houses.splice(houses.indexOf(existing), 1);
-		        }
-	        }
-
-	        saveData();
-	        renderList();
-
-	        houseNumber.value = "";
-	        houseNumber.focus();
-        });
-        
-        exportData.addEventListener("click", () => {
-            exportPopup.style.display = "flex";
-        });
-
-        cancelImport.addEventListener("click", () => {
-	        importPopup.style.display = "none";
-	        importText.value = "";
-        });
-         
-        cancelExport.addEventListener("click", () => {
-            exportPopup.style.display = "none";
-        });
-
-        confirmImport.addEventListener("click", () => {
-
-	        let data;
-
-	        try {
-		        data = JSON.parse(importText.value);
-	        } catch {
-		        alert("Invalid route data.");
-		        return;
-	        }
-
-	        importRoute(
-		        data,
-		        importMode.value,
-		        importDays.value
-	        );
-
-	        importPopup.style.display = "none";
-	        importText.value = "";
-
-        });
-
-        importData.addEventListener("click", () => {
-	        importPopup.style.display = "flex";
-        });
-        
+				if (!existing) {
+
+					existing = {
+						street: importedHouse.street,
+						number: importedHouse.number,
+						checked: {
+							mawo: false,
+							dovr: false,
+							za: false
+						},
+						kranten: {
+							mawo: [],
+							dovr: [],
+							za: []
+						}
+					};
+
+					houses.push(existing);
+				}
+
+
+				daysToImport.forEach(d => {
+
+					importedHouse.kranten[d].forEach(krant => {
+
+						if (!existing.kranten[d].includes(krant)) {
+							existing.kranten[d].push(krant);
+						}
+
+					});
+
+					existing.kranten[d].sort();
+
+				});
+
+			});
+
+
+			saveData();
+			renderStreetList();
+			renderList();
+
+			alert("Import complete.");
+		}
+
+		submit.addEventListener("click", () => {
+			if (!street.value) {
+				alert("Add a street first.");
+				return;
+			}
+
+			const number = houseNumber.value.trim();
+
+			if (number === "") {
+				alert("Enter a house number.");
+				return;
+			}
+
+			const selectedKrant = krant.value;
+			const selectedDays = getSelectedDayGroups();
+
+			if (action.value === "add") {
+
+				let existing = houses.find(
+					h => h.street === street.value && h.number == number
+				);
+
+				if (existing) {
+
+					selectedDays.forEach(day => {
+						if (!existing.kranten[day].includes(selectedKrant)) {
+							existing.kranten[day].push(selectedKrant);
+							existing.kranten[day].sort();
+						}
+					});
+
+				} else {
+
+					let newHouse = {
+						street: street.value,
+						number: number,
+						checked: {
+							mawo: false,
+							dovr: false,
+							za: false
+						},
+						kranten: {
+							mawo: [],
+							dovr: [],
+							za: []
+						}
+					};
+
+					selectedDays.forEach(day => {
+						newHouse.kranten[day].push(selectedKrant);
+					});
+
+					houses.push(newHouse);
+				}
+
+			} else if (action.value === "bij") {
+
+				let existing = houses.find(
+					h => h.street === street.value && h.number == number
+				);
+
+				if (existing) {
+
+					selectedDays.forEach(day => {
+						if (!existing.kranten[day].includes(selectedKrant)) {
+							existing.kranten[day].push(selectedKrant);
+							existing.kranten[day].sort();
+						}
+					});
+
+				} else {
+
+					let newHouse = {
+						street: street.value,
+						number: number,
+						checked: {
+							mawo: false,
+							dovr: false,
+							za: false
+						},
+						kranten: {
+							mawo: [],
+							dovr: [],
+							za: []
+						}
+					};
+
+					selectedDays.forEach(day => {
+						newHouse.kranten[day].push(selectedKrant);
+					});
+
+					let referenceHouse = parseInt(reference.value);
+
+					if (isNaN(referenceHouse)) {
+						houses.push(newHouse);
+					} else {
+						houses.splice(referenceHouse, 0, newHouse);
+					}
+				}
+
+			} else if (action.value === "af") {
+
+				let existing = houses.find(
+					h => h.street === street.value && h.number == number
+				);
+
+				if (!existing) {
+					alert("House not found.");
+					return;
+				}
+
+				selectedDays.forEach(day => {
+					let index = existing.kranten[day].indexOf(selectedKrant);
+
+					if (index !== -1) {
+						existing.kranten[day].splice(index, 1);
+					}
+				});
+
+				const hasAnyKranten =
+					existing.kranten.mawo.length ||
+					existing.kranten.dovr.length ||
+					existing.kranten.za.length;
+
+				if (!hasAnyKranten) {
+					houses.splice(houses.indexOf(existing), 1);
+				}
+			}
+
+			saveData();
+			renderList();
+
+			houseNumber.value = "";
+			houseNumber.focus();
+		});
+
+		exportData.addEventListener("click", () => {
+			exportPopup.style.display = "flex";
+		});
+
+		cancelImport.addEventListener("click", () => {
+			importPopup.style.display = "none";
+			importText.value = "";
+		});
+
+		cancelExport.addEventListener("click", () => {
+			exportPopup.style.display = "none";
+		});
+
+		confirmImport.addEventListener("click", () => {
+
+			let data;
+
+			try {
+				data = JSON.parse(importText.value);
+			} catch {
+				alert("Invalid route data.");
+				return;
+			}
+
+			importRoute(
+				data,
+				importMode.value,
+				importDays.value
+			);
+
+			importPopup.style.display = "none";
+			importText.value = "";
+
+		});
+
+		importData.addEventListener("click", () => {
+			importPopup.style.display = "flex";
+		});
+
 		loadData();
-        const today = new Date().getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+		const today = new Date().getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
 
-        if (today >= 1 && today <= 3) {
-            // Monday, Tuesday, Wednesday
-            dayView.value = "mawo";
-        } else if (today >= 4 && today <= 5) {
-            // Thursday, Friday
-            dayView.value = "dovr";
-        } else if (today === 6) {
-            // Saturday
-            dayView.value = "za";
-        } else {
-            // Sunday (default)
-            dayView.value = "mawo";
-        }
+		if (today >= 1 && today <= 3) {
+			// Monday, Tuesday, Wednesday
+			dayView.value = "mawo";
+		} else if (today >= 4 && today <= 5) {
+			// Thursday, Friday
+			dayView.value = "dovr";
+		} else if (today === 6) {
+			// Saturday
+			dayView.value = "za";
+		} else {
+			// Sunday (default)
+			dayView.value = "mawo";
+		}
 
-        renderStreetList();
-        renderList();
+		renderStreetList();
+		renderList();
 	</script>
-
 </body>
 </html>

@@ -235,6 +235,7 @@
 					<option value="mawo">Ma-Wo</option>
 					<option value="dovr">Do-Vr</option>
 					<option value="za">Za</option>
+					<option value="f">F</option>
 				</select>
 			</summary>
 
@@ -254,6 +255,7 @@
 					<option>HP</option>
 					<option>AD</option>
 					<option>NYT</option>
+					<option>F</option>
 				</select>
 				<select id="action">
 					<option value="add">Add</option>
@@ -266,6 +268,7 @@
 					<option value="dovr">Do-Vr</option>
 					<option value="doza">Do-Za</option>
 					<option value="za">Za</option>
+					<option value="f">F</option>
 				</select>
 				<span id="referenceContainer">
 					<select id="reference"></select>
@@ -296,6 +299,7 @@
 					<option value="mawo">Ma-Wo</option>
 					<option value="dovr">Do-Vr</option>
 					<option value="za">Za</option>
+					<option value="f">F</option>
 				</select>
 				<select id="importMode">
 					<option value="replace">Replace</option>
@@ -332,6 +336,7 @@
 				<option value="mawo">Ma-Wo</option>
 				<option value="dovr">Do-Vr</option>
 				<option value="za">Za</option>
+				<option value="f">F</option>
 			</select>
 			<br><br>
 			<div id="statsContent"></div>
@@ -409,7 +414,8 @@
 						house.checked = {
 							mawo: house.checked,
 							dovr: false,
-							za: false
+							za: false,
+							f: false
 						};
 					}
 				});
@@ -433,7 +439,8 @@
 				TR: 0,
 				HP: 0,
 				AD: 0,
-				NYT: 0
+				NYT: 0,
+				F: 0
 			};
 
 			let total = 0;
@@ -655,7 +662,8 @@
 						house.checked = {
 							mawo: house.checked,
 							dovr: false,
-							za: false
+							za: false,
+							f: false
 						};
 					}
 
@@ -768,6 +776,9 @@
 				case "za":
 					return ["za"];
 
+				case "f":
+					return ["f"];
+					
 				default:
 					return [];
 			}
@@ -830,12 +841,14 @@
 						checked: {
 							mawo: false,
 							dovr: false,
-							za: false
+							za: false,
+							f: false
 						},
 						kranten: {
 							mawo: [],
 							dovr: [],
-							za: []
+							za: [],
+							f: []
 						}
 					};
 
@@ -906,12 +919,14 @@
 						checked: {
 							mawo: false,
 							dovr: false,
-							za: false
+							za: false,
+							f: false
 						},
 						kranten: {
 							mawo: [],
 							dovr: [],
-							za: []
+							za: [],
+							f: []
 						}
 					};
 
@@ -945,12 +960,14 @@
 						checked: {
 							mawo: false,
 							dovr: false,
-							za: false
+							za: false,
+							f: false
 						},
 						kranten: {
 							mawo: [],
 							dovr: [],
-							za: []
+							za: [],
+							f: []
 						}
 					};
 

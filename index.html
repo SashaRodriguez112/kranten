@@ -7,11 +7,33 @@
 	<title>Krantenwijk</title>
 
 	<style>
+		* {
+			box-sizing: border-box;
+		}
+
+		html {
+			background: #000;
+			overscroll-behavior: none;
+		}
+
 		body {
 			background: #000;
 			color: snow;
 			font-family: Arial, sans-serif;
 			margin: 20px;
+			overscroll-behavior: none;
+		}
+
+		/*
+			Prevent the page behind a popup from scrolling.
+			The JavaScript also locks the body on iOS where
+			overflow:hidden alone is not always enough.
+		*/
+		body.modal-open {
+			overflow: hidden;
+			position: fixed;
+			width: 100%;
+			left: 0;
 		}
 
 		h1 select {
@@ -58,10 +80,16 @@
 
 		button {
 			cursor: pointer;
+			touch-action: manipulation;
 		}
 
 		button:hover {
 			background: #004444;
+		}
+
+		button:disabled {
+			opacity: 0.4;
+			cursor: default;
 		}
 
 		#referenceContainer {
@@ -112,6 +140,10 @@
 			background: #550000;
 		}
 
+		/*
+			The overlay itself never scrolls.
+			Only .importBox is allowed to scroll.
+		*/
 		#importPopup,
 		#exportPopup,
 		#statsPopup,
@@ -119,11 +151,16 @@
 			display: none;
 			position: fixed;
 			inset: 0;
+			width: 100%;
+			height: 100%;
 			background: rgba(0,0,0,0.7);
 			align-items: center;
 			justify-content: center;
 			z-index: 1000;
 			padding: 15px;
+			overflow: hidden;
+			overscroll-behavior: contain;
+			touch-action: none;
 		}
 
 		.importBox {
@@ -134,6 +171,10 @@
 			width: min(500px, 90%);
 			max-height: 90vh;
 			overflow-y: auto;
+			overflow-x: hidden;
+			overscroll-behavior: contain;
+			-webkit-overflow-scrolling: touch;
+			touch-action: pan-y;
 		}
 
 		.importBox h2 {
@@ -286,8 +327,53 @@
 		}
 
 		@media (max-width: 600px) {
+			body {
+				margin: 10px;
+			}
+
+			.summary.header {
+				gap: 10px;
+				flex-wrap: wrap;
+			}
+
+			.summary.header h1 {
+				font-size: 26px;
+			}
+
+			.summary.header select {
+				margin-left: 0;
+			}
+
+			.controls {
+				gap: 7px;
+			}
+
+			input,
+			select,
+			button {
+				height: 38px;
+				font-size: 15px;
+			}
+
+			li {
+				width: 100%;
+				min-width: 0;
+				height: auto;
+				min-height: 46px;
+				padding: 7px 10px;
+			}
+
+			.houseLeft {
+				min-width: 0;
+			}
+
+			.houseLeft label {
+				overflow-wrap: anywhere;
+			}
+
 			.importBox {
 				width: calc(100% - 10px);
+				max-height: 90vh;
 				padding: 15px;
 			}
 
@@ -312,6 +398,7 @@
 		<details>
 			<summary class="header">
 				<h1>Krantenwijk</h1>
+
 				<select id="dayView">
 					<option value="mawo">Ma-Wo</option>
 					<option value="dovr">Do-Vr</option>
@@ -325,7 +412,11 @@
 				<button id="addStreet">+ Street</button>
 				<button id="removeStreet">- Street</button>
 
-				<input type="number" id="houseNumber" placeholder="House number">
+				<input
+					type="number"
+					id="houseNumber"
+					placeholder="House number"
+				>
 
 				<select id="krant">
 					<option>VK</option>
@@ -375,19 +466,40 @@
 		<div class="importBox">
 			<h2>Import Route</h2>
 
-			<textarea id="importText" placeholder="Paste exported route here"></textarea>
+			<textarea
+				id="importText"
+				placeholder="Paste exported route here"
+			></textarea>
 
 			<div class="file-upload">
-				<input type="file" id="importFile" accept=".json" hidden>
-				<label for="importFile" class="file-button">Choose route file</label>
-				<span id="fileName">No file selected</span>
+				<input
+					type="file"
+					id="importFile"
+					accept=".json"
+					hidden
+				>
+
+				<label
+					for="importFile"
+					class="file-button"
+				>
+					Choose route file
+				</label>
+
+				<span id="fileName">
+					No file selected
+				</span>
 			</div>
 
 			<strong>Days to import:</strong>
 
 			<div class="dayChoices" id="importDayChoices">
 				<label class="dayChoice all">
-					<input type="checkbox" value="all" id="importAllDays">
+					<input
+						type="checkbox"
+						value="all"
+						id="importAllDays"
+					>
 					All
 				</label>
 
@@ -433,7 +545,12 @@
 
 			<div class="dayChoices" id="exportDayChoices">
 				<label class="dayChoice all">
-					<input type="checkbox" value="all" id="exportAllDays" checked>
+					<input
+						type="checkbox"
+						value="all"
+						id="exportAllDays"
+						checked
+					>
 					All
 				</label>
 
@@ -459,8 +576,13 @@
 			</div>
 
 			<div class="importButtons">
-				<button id="copyExport">Copy to Clipboard</button>
-				<button id="downloadExport">Download JSON</button>
+				<button id="copyExport">
+					Copy to Clipboard
+				</button>
+
+				<button id="downloadExport">
+					Download JSON
+				</button>
 			</div>
 
 			<br>
@@ -556,7 +678,8 @@
 		const action = document.getElementById("action");
 		const days = document.getElementById("days");
 		const reference = document.getElementById("reference");
-		const referenceContainer = document.getElementById("referenceContainer");
+		const referenceContainer =
+			document.getElementById("referenceContainer");
 		const submit = document.getElementById("submit");
 		const houseList = document.getElementById("houseList");
 		const dayView = document.getElementById("dayView");
@@ -566,34 +689,115 @@
 		const importPopup = document.getElementById("importPopup");
 		const importText = document.getElementById("importText");
 		const importMode = document.getElementById("importMode");
-		const confirmImport = document.getElementById("confirmImport");
-		const cancelImport = document.getElementById("cancelImport");
+		const confirmImport =
+			document.getElementById("confirmImport");
+		const cancelImport =
+			document.getElementById("cancelImport");
+
 		const exportPopup = document.getElementById("exportPopup");
 		const copyExport = document.getElementById("copyExport");
-		const downloadExport = document.getElementById("downloadExport");
-		const cancelExport = document.getElementById("cancelExport");
-		const importFile = document.getElementById("importFile");
+		const downloadExport =
+			document.getElementById("downloadExport");
+		const cancelExport =
+			document.getElementById("cancelExport");
+		const importFile =
+			document.getElementById("importFile");
 
-		const clearChecked = document.getElementById("clearChecked");
-		const statsButton = document.getElementById("statsButton");
-		const statsPopup = document.getElementById("statsPopup");
-		const statsDay = document.getElementById("statsDay");
-		const statsContent = document.getElementById("statsContent");
-		const closeStats = document.getElementById("closeStats");
+		const clearChecked =
+			document.getElementById("clearChecked");
+		const statsButton =
+			document.getElementById("statsButton");
+		const statsPopup =
+			document.getElementById("statsPopup");
+		const statsDay =
+			document.getElementById("statsDay");
+		const statsContent =
+			document.getElementById("statsContent");
+		const closeStats =
+			document.getElementById("closeStats");
 
-		const reorderPopup = document.getElementById("reorderPopup");
-		const reorderList = document.getElementById("reorderList");
-		const reorderHint = document.getElementById("reorderHint");
-		const cancelReorder = document.getElementById("cancelReorder");
-		const saveReorder = document.getElementById("saveReorder");
+		const reorderPopup =
+			document.getElementById("reorderPopup");
+		const reorderList =
+			document.getElementById("reorderList");
+		const reorderHint =
+			document.getElementById("reorderHint");
+		const cancelReorder =
+			document.getElementById("cancelReorder");
+		const saveReorder =
+			document.getElementById("saveReorder");
 
-		const importAllDays = document.getElementById("importAllDays");
-		const exportAllDays = document.getElementById("exportAllDays");
+		const importAllDays =
+			document.getElementById("importAllDays");
+		const exportAllDays =
+			document.getElementById("exportAllDays");
+
+		const importDayChoices =
+			document.getElementById("importDayChoices");
+
+		const exportDayChoices =
+			document.getElementById("exportDayChoices");
+
+		const reorderDayChoices =
+			document.getElementById("reorderDayChoices");
 
 		let reorderDay = null;
 		let reorderDays = [];
 		let reorderTemp = [];
 		let longPressTimer = null;
+
+		/*
+			Used to restore the exact page position after a popup closes.
+			This is especially important on iPhone/iPad.
+		*/
+		let lockedScrollY = 0;
+
+		function lockPageScroll() {
+			if (document.body.classList.contains("modal-open")) {
+				return;
+			}
+
+			lockedScrollY =
+				window.scrollY ||
+				document.documentElement.scrollTop ||
+				0;
+
+			document.body.style.top =
+				`-${lockedScrollY}px`;
+
+			document.body.classList.add("modal-open");
+		}
+
+		function unlockPageScroll() {
+			if (!document.body.classList.contains("modal-open")) {
+				return;
+			}
+
+			document.body.classList.remove("modal-open");
+			document.body.style.top = "";
+
+			window.scrollTo(0, lockedScrollY);
+		}
+
+		function openPopup(popup) {
+			popup.style.display = "flex";
+			lockPageScroll();
+		}
+
+		function closePopup(popup) {
+			popup.style.display = "none";
+
+			if (
+				!document.querySelector(
+					'#importPopup[style*="display: flex"], ' +
+					'#exportPopup[style*="display: flex"], ' +
+					'#statsPopup[style*="display: flex"], ' +
+					'#reorderPopup[style*="display: flex"]'
+				)
+			) {
+				unlockPageScroll();
+			}
+		}
 
 		function emptyStreetOrders() {
 			return {
@@ -605,9 +809,20 @@
 		}
 
 		function saveData() {
-			localStorage.setItem("streets", JSON.stringify(streets));
-			localStorage.setItem("houses", JSON.stringify(houses));
-			localStorage.setItem("streetOrders", JSON.stringify(streetOrders));
+			localStorage.setItem(
+				"streets",
+				JSON.stringify(streets)
+			);
+
+			localStorage.setItem(
+				"houses",
+				JSON.stringify(houses)
+			);
+
+			localStorage.setItem(
+				"streetOrders",
+				JSON.stringify(streetOrders)
+			);
 		}
 
 		function ensureHouseStructure(house) {
@@ -620,7 +835,10 @@
 				};
 			}
 
-			if (!house.kranten || typeof house.kranten !== "object") {
+			if (
+				!house.kranten ||
+				typeof house.kranten !== "object"
+			) {
 				house.kranten = {
 					mawo: [],
 					dovr: [],
@@ -644,7 +862,10 @@
 				};
 			}
 
-			if (!house.checked || typeof house.checked !== "object") {
+			if (
+				!house.checked ||
+				typeof house.checked !== "object"
+			) {
 				house.checked = {
 					mawo: false,
 					dovr: false,
@@ -674,7 +895,10 @@
 			houses.forEach(house => {
 				if (
 					!result.includes(house.street) &&
-					streetIsUsedOnDay(house.street, day)
+					streetIsUsedOnDay(
+						house.street,
+						day
+					)
 				) {
 					result.push(house.street);
 				}
@@ -691,26 +915,44 @@
 
 				const used = new Set(
 					houses
-						.filter(h => streetIsUsedOnDay(h.street, day))
+						.filter(h =>
+							streetIsUsedOnDay(
+								h.street,
+								day
+							)
+						)
 						.map(h => h.street)
 				);
 
-				streetOrders[day] = streetOrders[day].filter(name =>
-					streets.includes(name) && used.has(name)
-				);
+				streetOrders[day] =
+					streetOrders[day].filter(
+						name =>
+							streets.includes(name) &&
+							used.has(name)
+					);
 
-				buildOrderFromHouseUsage(day).forEach(name => {
-					if (!streetOrders[day].includes(name)) {
-						streetOrders[day].push(name);
-					}
-				});
+				buildOrderFromHouseUsage(day)
+					.forEach(name => {
+						if (
+							!streetOrders[day]
+								.includes(name)
+						) {
+							streetOrders[day]
+								.push(name);
+						}
+					});
 			});
 		}
 
 		function loadData() {
-			const savedStreets = localStorage.getItem("streets");
-			const savedHouses = localStorage.getItem("houses");
-			const savedStreetOrders = localStorage.getItem("streetOrders");
+			const savedStreets =
+				localStorage.getItem("streets");
+
+			const savedHouses =
+				localStorage.getItem("houses");
+
+			const savedStreetOrders =
+				localStorage.getItem("streetOrders");
 
 			if (savedStreets) {
 				try {
@@ -742,40 +984,51 @@
 
 			if (savedStreetOrders) {
 				try {
-					const parsed = JSON.parse(savedStreetOrders);
+					const parsed =
+						JSON.parse(savedStreetOrders);
 
-					if (parsed && typeof parsed === "object") {
+					if (
+						parsed &&
+						typeof parsed === "object"
+					) {
 						streetOrders = parsed;
 						hadStreetOrders = true;
 					}
 				} catch {
-					streetOrders = emptyStreetOrders();
+					streetOrders =
+						emptyStreetOrders();
 				}
 			}
 
 			if (!hadStreetOrders) {
-				streetOrders = emptyStreetOrders();
+				streetOrders =
+					emptyStreetOrders();
 
 				DAYS.forEach(day => {
-					streetOrders[day] = buildOrderFromHouseUsage(day);
+					streetOrders[day] =
+						buildOrderFromHouseUsage(day);
 				});
 			}
 
 			/*
-				Fix old versions where every day contained every
-				global street in the exact same order.
+				Fix old versions where every day contained
+				every global street in the same order.
 			*/
 			DAYS.forEach(day => {
-				const order = Array.isArray(streetOrders[day])
-					? streetOrders[day]
-					: [];
+				const order =
+					Array.isArray(streetOrders[day])
+						? streetOrders[day]
+						: [];
 
 				const allExisting =
 					order.length === streets.length &&
-					streets.every(name => order.includes(name));
+					streets.every(name =>
+						order.includes(name)
+					);
 
 				if (allExisting) {
-					streetOrders[day] = buildOrderFromHouseUsage(day);
+					streetOrders[day] =
+						buildOrderFromHouseUsage(day);
 				}
 			});
 
@@ -792,15 +1045,36 @@
 		}
 
 		function addStreetToDayOrder(day, streetName) {
-			if (!streetOrders[day].includes(streetName)) {
-				streetOrders[day].push(streetName);
+			if (
+				!Array.isArray(streetOrders[day])
+			) {
+				streetOrders[day] = [];
+			}
+
+			if (
+				!streetOrders[day]
+					.includes(streetName)
+			) {
+				streetOrders[day]
+					.push(streetName);
 			}
 		}
 
-		function removeStreetFromDayIfUnused(day, streetName) {
-			if (!streetIsUsedOnDay(streetName, day)) {
+		function removeStreetFromDayIfUnused(
+			day,
+			streetName
+		) {
+			if (
+				!streetIsUsedOnDay(
+					streetName,
+					day
+				)
+			) {
 				streetOrders[day] =
-					streetOrders[day].filter(name => name !== streetName);
+					streetOrders[day].filter(
+						name =>
+							name !== streetName
+					);
 			}
 		}
 
@@ -816,8 +1090,15 @@
 				.map(box => box.value);
 		}
 
-		function setDayCheckboxes(container, selectedDays) {
-			const all = container.querySelector('input[value="all"]');
+		function setDayCheckboxes(
+			container,
+			selectedDays
+		) {
+			const all =
+				container.querySelector(
+					'input[value="all"]'
+				);
+
 			const boxes = [
 				...container.querySelectorAll(
 					'input[type="checkbox"]:not([value="all"])'
@@ -825,58 +1106,77 @@
 			];
 
 			boxes.forEach(box => {
-				box.checked = selectedDays.includes(box.value);
+				box.checked =
+					selectedDays.includes(
+						box.value
+					);
 			});
 
 			if (all) {
 				all.checked =
 					boxes.length > 0 &&
-					boxes.every(box => box.checked);
+					boxes.every(box =>
+						box.checked
+					);
 			}
 		}
 
-		function setupAllCheckbox(allCheckbox, container) {
-			allCheckbox.addEventListener("change", () => {
-				const boxes = [
-					...container.querySelectorAll(
-						'input[type="checkbox"]:not([value="all"])'
-					)
-				];
-
-				boxes.forEach(box => {
-					box.checked = allCheckbox.checked;
-				});
-			});
-
-			container.querySelectorAll(
-				'input[type="checkbox"]:not([value="all"])'
-			).forEach(box => {
-				box.addEventListener("change", () => {
+		function setupAllCheckbox(
+			allCheckbox,
+			container
+		) {
+			allCheckbox.addEventListener(
+				"change",
+				() => {
 					const boxes = [
 						...container.querySelectorAll(
 							'input[type="checkbox"]:not([value="all"])'
 						)
 					];
 
-					allCheckbox.checked =
-						boxes.every(item => item.checked);
-				});
+					boxes.forEach(box => {
+						box.checked =
+							allCheckbox.checked;
+					});
+				}
+			);
+
+			container.querySelectorAll(
+				'input[type="checkbox"]:not([value="all"])'
+			).forEach(box => {
+				box.addEventListener(
+					"change",
+					() => {
+						const boxes = [
+							...container.querySelectorAll(
+								'input[type="checkbox"]:not([value="all"])'
+							)
+						];
+
+						allCheckbox.checked =
+							boxes.every(
+								item =>
+									item.checked
+							);
+					}
+				);
 			});
 		}
 
-		const importDayChoices =
-			document.getElementById("importDayChoices");
+		setupAllCheckbox(
+			importAllDays,
+			importDayChoices
+		);
 
-		const exportDayChoices =
-			document.getElementById("exportDayChoices");
+		setupAllCheckbox(
+			exportAllDays,
+			exportDayChoices
+		);
 
-		const reorderDayChoices =
-			document.getElementById("reorderDayChoices");
-
-		setupAllCheckbox(importAllDays, importDayChoices);
-		setupAllCheckbox(exportAllDays, exportDayChoices);
-
-		dayView.addEventListener("change", renderList);
+		dayView.addEventListener(
+			"change",
+			renderList
+		);
 
 		function updateStats() {
 			const day = statsDay.value;
@@ -901,57 +1201,96 @@
 			houses.forEach(house => {
 				ensureHouseStructure(house);
 
-				if (house.kranten[day].length > 0) {
+				if (
+					house.kranten[day].length > 0
+				) {
 					houseCount++;
 				}
 
-				house.kranten[day].forEach(paper => {
-					if (counts[paper] !== undefined) {
-						counts[paper]++;
-					}
+				house.kranten[day]
+					.forEach(paper => {
+						if (
+							counts[paper] !==
+							undefined
+						) {
+							counts[paper]++;
+						}
 
-					total++;
-				});
+						total++;
+					});
 			});
 
-			let html = `<div style="font-size:17px;">`;
+			let html =
+				`<div style="font-size:17px;">`;
 
 			Object.entries(counts)
-				.sort((a, b) => b[1] - a[1])
-				.filter(([, amount]) => amount > 0)
-				.forEach(([paper, amount]) => {
-					html += `
-						<div style="
-							display:flex;
-							justify-content:space-between;
-							align-items:center;
-							padding:6px 0;
-							border-bottom:1px solid rgba(64,224,208,.2);
-						">
-							<span>${paper}</span>
-							<strong>${amount}</strong>
-						</div>
-					`;
-				});
+				.sort(
+					(a, b) =>
+						b[1] - a[1]
+				)
+				.filter(
+					([, amount]) =>
+						amount > 0
+				)
+				.forEach(
+					([paper, amount]) => {
+						html += `
+							<div style="
+								display:flex;
+								justify-content:space-between;
+								align-items:center;
+								padding:6px 0;
+								border-bottom:1px solid rgba(64,224,208,.2);
+							">
+								<span>${paper}</span>
+								<strong>${amount}</strong>
+							</div>
+						`;
+					}
+				);
 
 			html += `
 				</div>
 
-				<hr style="border-color:turquoise; margin:16px 0;">
+				<hr style="
+					border-color:turquoise;
+					margin:16px 0;
+				">
 
-				<div style="display:flex;justify-content:space-between;padding:4px 0;">
+				<div style="
+					display:flex;
+					justify-content:space-between;
+					padding:4px 0;
+				">
 					<span>Total papers</span>
 					<strong>${total}</strong>
 				</div>
 
-				<div style="display:flex;justify-content:space-between;padding:4px 0;">
+				<div style="
+					display:flex;
+					justify-content:space-between;
+					padding:4px 0;
+				">
 					<span>Houses</span>
 					<strong>${houseCount}</strong>
 				</div>
 
-				<div style="display:flex;justify-content:space-between;padding:4px 0;">
+				<div style="
+					display:flex;
+					justify-content:space-between;
+					padding:4px 0;
+				">
 					<span>Average / house</span>
-					<strong>${houseCount ? (total / houseCount).toFixed(2) : "0.00"}</strong>
+					<strong>
+						${
+							houseCount
+								? (
+									total /
+									houseCount
+								).toFixed(2)
+								: "0.00"
+						}
+					</strong>
 				</div>
 			`;
 
@@ -964,17 +1303,29 @@
 			street.innerHTML = "";
 
 			if (streets.length === 0) {
-				const option = document.createElement("option");
-				option.textContent = "Add street first";
+				const option =
+					document.createElement(
+						"option"
+					);
+
+				option.textContent =
+					"Add street first";
+
 				option.value = "";
+
 				street.appendChild(option);
 				return;
 			}
 
 			streets.forEach(name => {
-				const option = document.createElement("option");
+				const option =
+					document.createElement(
+						"option"
+					);
+
 				option.value = name;
 				option.textContent = name;
+
 				street.appendChild(option);
 			});
 
@@ -987,66 +1338,120 @@
 			reference.innerHTML = "";
 
 			houses
-				.filter(h => h.street === street.value)
+				.filter(
+					h =>
+						h.street ===
+						street.value
+				)
 				.forEach(house => {
-					const option = document.createElement("option");
+					ensureHouseStructure(house);
+
+					const option =
+						document.createElement(
+							"option"
+						);
 
 					const krantenText = [
-						...new Set(Object.values(house.kranten).flat())
+						...new Set(
+							Object.values(
+								house.kranten
+							).flat()
+						)
 					];
 
-					option.value = houses.indexOf(house);
+					option.value =
+						houses.indexOf(
+							house
+						);
+
 					option.textContent =
 						`${house.number} ${krantenText.join("/")}`;
 
-					reference.appendChild(option);
+					reference.appendChild(
+						option
+					);
 				});
 		}
 
 		function getExportObject(selectedDays) {
-			const exportedHouses = houses.map(house => {
-				ensureHouseStructure(house);
+			const exportedHouses =
+				houses.map(house => {
+					ensureHouseStructure(
+						house
+					);
 
-				const copy = {
-					street: house.street,
-					number: house.number,
-					checked: {},
-					kranten: {}
-				};
+					const copy = {
+						street:
+							house.street,
+						number:
+							house.number,
+						checked: {},
+						kranten: {}
+					};
 
-				DAYS.forEach(day => {
-					if (selectedDays.includes(day)) {
-						copy.kranten[day] = [...house.kranten[day]];
-						copy.checked[day] = house.checked[day];
-					} else {
-						copy.kranten[day] = [];
-						copy.checked[day] = false;
-					}
+					DAYS.forEach(day => {
+						if (
+							selectedDays.includes(
+								day
+							)
+						) {
+							copy.kranten[day] =
+								[
+									...house
+										.kranten[
+											day
+										]
+								];
+
+							copy.checked[day] =
+								house.checked[
+									day
+								];
+						} else {
+							copy.kranten[day] =
+								[];
+
+							copy.checked[day] =
+								false;
+						}
+					});
+
+					return copy;
 				});
 
-				return copy;
-			});
-
-			const exportedOrders = emptyStreetOrders();
+			const exportedOrders =
+				emptyStreetOrders();
 
 			selectedDays.forEach(day => {
-				exportedOrders[day] = [...getOrderedStreets(day)];
+				exportedOrders[day] =
+					[
+						...getOrderedStreets(
+							day
+						)
+					];
 			});
 
 			return {
 				version: 4,
 				streets: [...streets],
 				houses: exportedHouses,
-				streetOrders: exportedOrders,
+				streetOrders:
+					exportedOrders,
 				days: selectedDays
 			};
 		}
 
 		function getExportDays() {
-			const selected = getCheckedDays(exportDayChoices);
+			const selected =
+				getCheckedDays(
+					exportDayChoices
+				);
 
 			if (selected.length === 0) {
-				alert("Select at least one day.");
+				alert(
+					"Select at least one day."
+				);
+
 				return null;
 			}
 
@@ -1054,66 +1459,8 @@
 		}
 
 		async function copyRoute() {
-			const selectedDays = getExportDays();
-
-			if (!selectedDays) {
-				return;
-			}
-
-			const text =
-				JSON.stringify(getExportObject(selectedDays));
-
-			try {
-				await navigator.clipboard.writeText(text);
-				alert("Route copied!");
-				exportPopup.style.display = "none";
-			} catch {
-				alert("Couldn't copy to the clipboard.");
-			}
-		}
-
-		copyExport.addEventListener("click", copyRoute);
-
-		statsButton.addEventListener("click", () => {
-			statsDay.value = dayView.value;
-			updateStats();
-			statsPopup.style.display = "flex";
-		});
-
-		statsDay.addEventListener("change", updateStats);
-
-		closeStats.addEventListener("click", () => {
-			statsPopup.style.display = "none";
-		});
-
-		clearChecked.addEventListener("click", () => {
-			const selectedDay = dayView.value;
-
-			const anyChecked = houses.some(h =>
-				h.checked[selectedDay]
-			);
-
-			if (!anyChecked) {
-				alert("Nothing is checked.");
-				return;
-			}
-
-			if (!confirm(
-				`Clear all checked houses for ${selectedDay}?`
-			)) {
-				return;
-			}
-
-			houses.forEach(house => {
-				house.checked[selectedDay] = false;
-			});
-
-			saveData();
-			renderList();
-		});
-
-		function downloadRoute() {
-			const selectedDays = getExportDays();
+			const selectedDays =
+				getExportDays();
 
 			if (!selectedDays) {
 				return;
@@ -1121,44 +1468,168 @@
 
 			const text =
 				JSON.stringify(
-					getExportObject(selectedDays),
+					getExportObject(
+						selectedDays
+					)
+				);
+
+			try {
+				await navigator.clipboard
+					.writeText(text);
+
+				alert("Route copied!");
+				closePopup(exportPopup);
+			} catch {
+				alert(
+					"Couldn't copy to the clipboard."
+				);
+			}
+		}
+
+		copyExport.addEventListener(
+			"click",
+			copyRoute
+		);
+
+		statsButton.addEventListener(
+			"click",
+			() => {
+				statsDay.value =
+					dayView.value;
+
+				updateStats();
+				openPopup(statsPopup);
+			}
+		);
+
+		statsDay.addEventListener(
+			"change",
+			updateStats
+		);
+
+		closeStats.addEventListener(
+			"click",
+			() => {
+				closePopup(statsPopup);
+			}
+		);
+
+		clearChecked.addEventListener(
+			"click",
+			() => {
+				const selectedDay =
+					dayView.value;
+
+				const anyChecked =
+					houses.some(h =>
+						h.checked[
+							selectedDay
+						]
+					);
+
+				if (!anyChecked) {
+					alert(
+						"Nothing is checked."
+					);
+
+					return;
+				}
+
+				if (
+					!confirm(
+						`Clear all checked houses for ${selectedDay}?`
+					)
+				) {
+					return;
+				}
+
+				houses.forEach(
+					house => {
+						ensureHouseStructure(
+							house
+						);
+
+						house.checked[
+							selectedDay
+						] = false;
+					}
+				);
+
+				saveData();
+				renderList();
+			}
+		);
+
+		function downloadRoute() {
+			const selectedDays =
+				getExportDays();
+
+			if (!selectedDays) {
+				return;
+			}
+
+			const text =
+				JSON.stringify(
+					getExportObject(
+						selectedDays
+					),
 					null,
 					2
 				);
 
-			const blob = new Blob([text], {
-				type: "application/json"
-			});
+			const blob = new Blob(
+				[text],
+				{
+					type:
+						"application/json"
+				}
+			);
 
-			const url = URL.createObjectURL(blob);
-			const a = document.createElement("a");
+			const url =
+				URL.createObjectURL(
+					blob
+				);
+
+			const a =
+				document.createElement(
+					"a"
+				);
 
 			a.href = url;
-			a.download = "krantenwijk-backup.json";
+			a.download =
+				"krantenwijk-backup.json";
 
 			document.body.appendChild(a);
 			a.click();
 			a.remove();
 
 			setTimeout(() => {
-				URL.revokeObjectURL(url);
+				URL.revokeObjectURL(
+					url
+				);
 			}, 1000);
 
-			exportPopup.style.display = "none";
+			closePopup(exportPopup);
 		}
 
 		function startLongPress(streetName) {
 			cancelLongPress();
 
-			longPressTimer = setTimeout(() => {
-				longPressTimer = null;
-				openReorderMode(streetName);
-			}, 3000);
+			longPressTimer =
+				setTimeout(() => {
+					longPressTimer = null;
+					openReorderMode(
+						streetName
+					);
+				}, 3000);
 		}
 
 		function cancelLongPress() {
 			if (longPressTimer) {
-				clearTimeout(longPressTimer);
+				clearTimeout(
+					longPressTimer
+				);
+
 				longPressTimer = null;
 			}
 		}
@@ -1173,17 +1644,25 @@
 		}
 
 		function openReorderMode(streetName) {
-			reorderDay = dayView.value;
+			reorderDay =
+				dayView.value;
 
 			normalizeStreetOrders();
 
-			reorderTemp = [...getOrderedStreets(reorderDay)];
+			reorderTemp =
+				[
+					...getOrderedStreets(
+						reorderDay
+					)
+				];
 
 			if (!reorderTemp.length) {
 				return;
 			}
 
-			reorderDays = [reorderDay];
+			reorderDays = [
+				reorderDay
+			];
 
 			setDayCheckboxes(
 				reorderDayChoices,
@@ -1191,31 +1670,47 @@
 			);
 
 			reorderHint.textContent =
-				`Reorder streets. Changes can be applied to multiple days.`;
+				`Current order: ${getDayName(
+					reorderDay
+				)}. Saving can apply it to multiple days.`;
 
-			reorderPopup.style.display = "flex";
+			openPopup(reorderPopup);
 
 			renderReorderList();
 
 			setTimeout(() => {
-				const item = [...reorderList.children]
-					.find(el => el.dataset.street === streetName);
+				const item =
+					[
+						...reorderList.children
+					].find(
+						el =>
+							el.dataset
+								.street ===
+							streetName
+					);
 
 				if (item) {
 					item.scrollIntoView({
-						behavior: "smooth",
-						block: "center"
+						behavior:
+							"smooth",
+						block:
+							"center"
 					});
 				}
 			}, 50);
 		}
 
-		function moveReorderItem(index, direction) {
-			const newIndex = index + direction;
+		function moveReorderItem(
+			index,
+			direction
+		) {
+			const newIndex =
+				index + direction;
 
 			if (
 				newIndex < 0 ||
-				newIndex >= reorderTemp.length
+				newIndex >=
+					reorderTemp.length
 			) {
 				return;
 			}
@@ -1234,105 +1729,212 @@
 		function renderReorderList() {
 			reorderList.innerHTML = "";
 
-			reorderTemp.forEach((streetName, index) => {
-				const item = document.createElement("div");
-				item.className = "reorderItem";
-				item.dataset.street = streetName;
+			reorderTemp.forEach(
+				(streetName, index) => {
+					const item =
+						document.createElement(
+							"div"
+						);
 
-				const name = document.createElement("div");
-				name.className = "reorderName";
-				name.textContent =
-					`${index + 1}. ${streetName}`;
-				name.draggable = true;
+					item.className =
+						"reorderItem";
 
-				const up = document.createElement("button");
-				up.className = "reorderMove";
-				up.textContent = "↑";
-				up.title = "Move up";
-				up.disabled = index === 0;
+					item.dataset.street =
+						streetName;
 
-				const down = document.createElement("button");
-				down.className = "reorderMove";
-				down.textContent = "↓";
-				down.title = "Move down";
-				down.disabled =
-					index === reorderTemp.length - 1;
+					const name =
+						document.createElement(
+							"div"
+						);
 
-				up.addEventListener("click", () => {
-					moveReorderItem(index, -1);
-				});
+					name.className =
+						"reorderName";
 
-				down.addEventListener("click", () => {
-					moveReorderItem(index, 1);
-				});
+					name.textContent =
+						`${index + 1}. ${streetName}`;
 
-				let draggedStreet = null;
+					name.draggable = true;
 
-				name.addEventListener("dragstart", event => {
-					draggedStreet = streetName;
-					item.classList.add("dragging");
+					const up =
+						document.createElement(
+							"button"
+						);
 
-					event.dataTransfer.effectAllowed = "move";
-					event.dataTransfer.setData(
-						"text/plain",
-						streetName
+					up.className =
+						"reorderMove";
+
+					up.textContent = "↑";
+					up.title =
+						"Move up";
+
+					up.disabled =
+						index === 0;
+
+					const down =
+						document.createElement(
+							"button"
+						);
+
+					down.className =
+						"reorderMove";
+
+					down.textContent = "↓";
+					down.title =
+						"Move down";
+
+					down.disabled =
+						index ===
+						reorderTemp.length -
+							1;
+
+					up.addEventListener(
+						"click",
+						() => {
+							moveReorderItem(
+								index,
+								-1
+							);
+						}
 					);
-				});
 
-				name.addEventListener("dragend", () => {
-					item.classList.remove("dragging");
-				});
+					down.addEventListener(
+						"click",
+						() => {
+							moveReorderItem(
+								index,
+								1
+							);
+						}
+					);
 
-				item.addEventListener("dragover", event => {
-					event.preventDefault();
-					item.classList.add("streetDropTarget");
-				});
+					let draggedStreet =
+						null;
 
-				item.addEventListener("dragleave", () => {
-					item.classList.remove("streetDropTarget");
-				});
+					name.addEventListener(
+						"dragstart",
+						event => {
+							draggedStreet =
+								streetName;
 
-				item.addEventListener("drop", event => {
-					event.preventDefault();
-					item.classList.remove("streetDropTarget");
+							item.classList.add(
+								"dragging"
+							);
 
-					const dragged =
-						event.dataTransfer.getData("text/plain") ||
-						draggedStreet;
+							event.dataTransfer
+								.effectAllowed =
+								"move";
 
-					if (!dragged || dragged === streetName) {
-						return;
-					}
+							event.dataTransfer
+								.setData(
+									"text/plain",
+									streetName
+								);
+						}
+					);
 
-					const from = reorderTemp.indexOf(dragged);
-					const to = reorderTemp.indexOf(streetName);
+					name.addEventListener(
+						"dragend",
+						() => {
+							item.classList.remove(
+								"dragging"
+							);
+						}
+					);
 
-					if (from === -1 || to === -1) {
-						return;
-					}
+					item.addEventListener(
+						"dragover",
+						event => {
+							event.preventDefault();
 
-					reorderTemp.splice(from, 1);
-					reorderTemp.splice(to, 0, dragged);
+							item.classList.add(
+								"streetDropTarget"
+							);
+						}
+					);
 
-					renderReorderList();
-				});
+					item.addEventListener(
+						"dragleave",
+						() => {
+							item.classList.remove(
+								"streetDropTarget"
+							);
+						}
+					);
 
-				item.appendChild(name);
-				item.appendChild(up);
-				item.appendChild(down);
+					item.addEventListener(
+						"drop",
+						event => {
+							event.preventDefault();
 
-				reorderList.appendChild(item);
-			});
+							item.classList.remove(
+								"streetDropTarget"
+							);
+
+							const dragged =
+								event.dataTransfer
+									.getData(
+										"text/plain"
+									) ||
+								draggedStreet;
+
+							if (
+								!dragged ||
+								dragged ===
+									streetName
+							) {
+								return;
+							}
+
+							const from =
+								reorderTemp.indexOf(
+									dragged
+								);
+
+							const to =
+								reorderTemp.indexOf(
+									streetName
+								);
+
+							if (
+								from === -1 ||
+								to === -1
+							) {
+								return;
+							}
+
+							reorderTemp.splice(
+								from,
+								1
+							);
+
+							reorderTemp.splice(
+								to,
+								0,
+								dragged
+							);
+
+							renderReorderList();
+						}
+					);
+
+					item.appendChild(name);
+					item.appendChild(up);
+					item.appendChild(down);
+
+					reorderList.appendChild(
+						item
+					);
+				}
+			);
 		}
 
-		function applyReorderToDay(day, desiredOrder) {
-			const used = getOrderedStreets(day);
+		function applyReorderToDay(
+			day,
+			desiredOrder
+		) {
+			const used =
+				getOrderedStreets(day);
 
-			/*
-				Only reorder streets that actually exist on this day.
-				Streets unique to another selected day stay in their
-				current position / are appended.
-			*/
 			const newOrder = [];
 
 			desiredOrder.forEach(name => {
@@ -1345,16 +1947,21 @@
 			});
 
 			used.forEach(name => {
-				if (!newOrder.includes(name)) {
+				if (
+					!newOrder.includes(name)
+				) {
 					newOrder.push(name);
 				}
 			});
 
-			streetOrders[day] = newOrder;
+			streetOrders[day] =
+				newOrder;
 		}
 
 		function getReorderDays() {
-			return getCheckedDays(reorderDayChoices);
+			return getCheckedDays(
+				reorderDayChoices
+			);
 		}
 
 		reorderDayChoices
@@ -1362,315 +1969,465 @@
 				'input[type="checkbox"]'
 			)
 			.forEach(box => {
-				box.addEventListener("change", () => {
-					const selected = getReorderDays();
+				box.addEventListener(
+					"change",
+					() => {
+						const selected =
+							getReorderDays();
 
-					if (selected.length === 0) {
-						return;
-					}
-
-					reorderDays = selected;
-
-					/*
-						The visible list stays based on the original
-						long-pressed day. Saving applies its order to
-						all selected days.
-					*/
-					reorderHint.textContent =
-						`Current order: ${getDayName(reorderDay)}. Saving will apply it to: ${
-							selected.map(getDayName).join(", ")
-						}.`;
-				});
-			});
-
-		cancelReorder.addEventListener("click", () => {
-			reorderPopup.style.display = "none";
-			reorderDay = null;
-			reorderDays = [];
-			reorderTemp = [];
-		});
-
-		saveReorder.addEventListener("click", () => {
-			if (!reorderDay) {
-				return;
-			}
-
-			const selectedDays = getReorderDays();
-
-			if (selectedDays.length === 0) {
-				alert("Select at least one day.");
-				return;
-			}
-
-			selectedDays.forEach(day => {
-				applyReorderToDay(day, reorderTemp);
-			});
-
-			normalizeStreetOrders();
-			saveData();
-			renderList();
-
-			reorderPopup.style.display = "none";
-			reorderDay = null;
-			reorderDays = [];
-			reorderTemp = [];
-		});
-
-		function renderList() {
-			houseList.innerHTML = "";
-
-			const selectedDay = dayView.value;
-			const orderedStreets =
-				getOrderedStreets(selectedDay);
-
-			let idCounter = 0;
-
-			orderedStreets.forEach(streetName => {
-				const visibleHouses = houses.filter(h =>
-					h.street === streetName &&
-					h.kranten[selectedDay].length > 0
-				);
-
-				if (!visibleHouses.length) {
-					return;
-				}
-
-				const heading =
-					document.createElement("h2");
-
-				heading.textContent = streetName;
-				heading.className = "streetHeading";
-
-				/*
-					Exactly 3 seconds.
-					Pointer events work with mouse, touch and stylus.
-				*/
-				heading.addEventListener(
-					"pointerdown",
-					event => {
 						if (
-							event.button !== undefined &&
-							event.button !== 0
+							selected.length ===
+							0
 						) {
 							return;
 						}
 
-						startLongPress(streetName);
+						reorderDays =
+							selected;
+
+						reorderHint.textContent =
+							`Current order: ${getDayName(
+								reorderDay
+							)}. Saving will apply it to: ${
+								selected
+									.map(
+										getDayName
+									)
+									.join(
+										", "
+									)
+							}.`;
+					}
+				);
+			});
+
+		cancelReorder.addEventListener(
+			"click",
+			() => {
+				closePopup(
+					reorderPopup
+				);
+
+				reorderDay = null;
+				reorderDays = [];
+				reorderTemp = [];
+			}
+		);
+
+		saveReorder.addEventListener(
+			"click",
+			() => {
+				if (!reorderDay) {
+					return;
+				}
+
+				const selectedDays =
+					getReorderDays();
+
+				if (
+					selectedDays.length ===
+					0
+				) {
+					alert(
+						"Select at least one day."
+					);
+
+					return;
+				}
+
+				selectedDays.forEach(
+					day => {
+						applyReorderToDay(
+							day,
+							reorderTemp
+						);
 					}
 				);
 
-				[
-					"pointerup",
-					"pointercancel",
-					"pointerleave"
-				].forEach(type => {
-					heading.addEventListener(
-						type,
-						cancelLongPress
-					);
-				});
+				normalizeStreetOrders();
+				saveData();
+				renderList();
 
-				heading.addEventListener(
-					"contextmenu",
-					event => {
-						event.preventDefault();
-					}
+				closePopup(
+					reorderPopup
 				);
 
-				houseList.appendChild(heading);
+				reorderDay = null;
+				reorderDays = [];
+				reorderTemp = [];
+			}
+		);
 
-				visibleHouses.forEach(house => {
-					ensureHouseStructure(house);
+		function renderList() {
+			houseList.innerHTML = "";
 
-					const li = document.createElement("li");
+			const selectedDay =
+				dayView.value;
 
-					const uniqueId =
-						`chk-${idCounter++}`;
+			const orderedStreets =
+				getOrderedStreets(
+					selectedDay
+				);
 
-					li.innerHTML = `
-						<div class="houseLeft">
-							<input type="checkbox" id="${uniqueId}">
-							<label for="${uniqueId}">
-								<strong>
-									${house.number} ${house.kranten[selectedDay].join("/")}
-								</strong>
-							</label>
-						</div>
+			let idCounter = 0;
 
-						<button class="deleteHouse">x</button>
-					`;
-
-					const checkbox =
-						li.querySelector("input");
-
-					checkbox.checked =
-						house.checked[selectedDay];
-
-					checkbox.addEventListener(
-						"change",
-						() => {
-							house.checked[selectedDay] =
-								checkbox.checked;
-
-							saveData();
-						}
-					);
-
-					li.querySelector(".deleteHouse")
-						.addEventListener(
-							"click",
-							() => {
-								const confirmed =
-									confirm(
-										`Delete house ${house.number} (${house.kranten[selectedDay].join("/")})?`
-									);
-
-								if (!confirmed) {
-									return;
-								}
-
-								/*
-									Keep the existing behavior:
-									the X deletes the complete house.
-								*/
-								houses.splice(
-									houses.indexOf(house),
-									1
+			orderedStreets.forEach(
+				streetName => {
+					const visibleHouses =
+						houses.filter(
+							h => {
+								ensureHouseStructure(
+									h
 								);
 
-								normalizeStreetOrders();
-								saveData();
-								renderList();
+								return (
+									h.street ===
+										streetName &&
+									h.kranten[
+										selectedDay
+									].length >
+										0
+								);
 							}
 						);
 
-					houseList.appendChild(li);
-				});
-			});
+					if (
+						!visibleHouses.length
+					) {
+						return;
+					}
+
+					const heading =
+						document.createElement(
+							"h2"
+						);
+
+					heading.textContent =
+						streetName;
+
+					heading.className =
+						"streetHeading";
+
+					/*
+						Exactly 3 seconds.
+						Pointer events work with
+						mouse, touch and stylus.
+					*/
+					heading.addEventListener(
+						"pointerdown",
+						event => {
+							if (
+								event.button !==
+									undefined &&
+								event.button !==
+									0
+							) {
+								return;
+							}
+
+							startLongPress(
+								streetName
+							);
+						}
+					);
+
+					[
+						"pointerup",
+						"pointercancel",
+						"pointerleave"
+					].forEach(type => {
+						heading.addEventListener(
+							type,
+							cancelLongPress
+						);
+					});
+
+					heading.addEventListener(
+						"contextmenu",
+						event => {
+							event.preventDefault();
+						}
+					);
+
+					houseList.appendChild(
+						heading
+					);
+
+					visibleHouses.forEach(
+						house => {
+							ensureHouseStructure(
+								house
+							);
+
+							const li =
+								document.createElement(
+									"li"
+								);
+
+							const uniqueId =
+								`chk-${idCounter++}`;
+
+							li.innerHTML = `
+								<div class="houseLeft">
+									<input
+										type="checkbox"
+										id="${uniqueId}"
+									>
+
+									<label for="${uniqueId}">
+										<strong>
+											${house.number}
+											${" "}
+											${house.kranten[
+												selectedDay
+											].join("/")}
+										</strong>
+									</label>
+								</div>
+
+								<button class="deleteHouse">
+									x
+								</button>
+							`;
+
+							const checkbox =
+								li.querySelector(
+									"input"
+								);
+
+							checkbox.checked =
+								house.checked[
+									selectedDay
+								];
+
+							checkbox.addEventListener(
+								"change",
+								() => {
+									house.checked[
+										selectedDay
+									] =
+										checkbox.checked;
+
+									saveData();
+								}
+							);
+
+							li.querySelector(
+								".deleteHouse"
+							).addEventListener(
+								"click",
+								() => {
+									const confirmed =
+										confirm(
+											`Delete house ${house.number} (${house.kranten[selectedDay].join("/")})?`
+										);
+
+									if (
+										!confirmed
+									) {
+										return;
+									}
+
+									/*
+										Keep the existing
+										behavior: X deletes
+										the complete house.
+									*/
+									houses.splice(
+										houses.indexOf(
+											house
+										),
+										1
+									);
+
+									normalizeStreetOrders();
+									saveData();
+									renderList();
+								}
+							);
+
+							houseList.appendChild(
+								li
+							);
+						}
+					);
+				}
+			);
 
 			renderReferenceList();
 		}
 
+		function updateFileName() {
+			const file =
+				importFile.files[0];
+
+			document.getElementById(
+				"fileName"
+			).textContent =
+				file?.name ||
+				"No file selected";
+		}
+
 		importFile.addEventListener(
 			"change",
-			function() {
-				const fileName =
-					this.files[0]?.name ||
-					"No file selected";
+			() => {
+				const file =
+					importFile.files[0];
 
-				document.getElementById(
-					"fileName"
-				).textContent = fileName;
+				updateFileName();
+
+				if (!file) {
+					return;
+				}
+
+				const reader =
+					new FileReader();
+
+				reader.onload = () => {
+					importText.value =
+						reader.result;
+				};
+
+				reader.readAsText(file);
 			}
 		);
 
-		action.addEventListener("change", () => {
-			referenceContainer.style.display =
-				action.value === "bij"
-					? "inline"
-					: "none";
+		action.addEventListener(
+			"change",
+			() => {
+				referenceContainer.style.display =
+					action.value === "bij"
+						? "inline"
+						: "none";
 
-			renderReferenceList();
-		});
-
-		addStreet.addEventListener("click", () => {
-			const name = prompt("Street name:");
-
-			if (!name) {
-				return;
+				renderReferenceList();
 			}
+		);
 
-			const cleanName = name.trim();
+		addStreet.addEventListener(
+			"click",
+			() => {
+				const name =
+					prompt(
+						"Street name:"
+					);
 
-			if (!cleanName) {
-				return;
+				if (!name) {
+					return;
+				}
+
+				const cleanName =
+					name.trim();
+
+				if (!cleanName) {
+					return;
+				}
+
+				if (
+					streets.includes(
+						cleanName
+					)
+				) {
+					alert(
+						"Street already exists."
+					);
+
+					return;
+				}
+
+				streets.push(
+					cleanName
+				);
+
+				/*
+					Do not add the street
+					to every day.
+
+					It enters a day's order
+					when a house is added
+					to that day.
+				*/
+
+				saveData();
+				renderStreetList();
+
+				street.value =
+					cleanName;
+
+				renderList();
 			}
-
-			if (streets.includes(cleanName)) {
-				alert("Street already exists.");
-				return;
-			}
-
-			streets.push(cleanName);
-
-			/*
-				Do not add the street to every day.
-				It enters a day's order when a house is added
-				to that day.
-			*/
-
-			saveData();
-			renderStreetList();
-
-			street.value = cleanName;
-
-			renderList();
-		});
-
-		importFile.addEventListener("change", () => {
-			const file = importFile.files[0];
-
-			if (!file) {
-				return;
-			}
-
-			const reader = new FileReader();
-
-			reader.onload = () => {
-				importText.value = reader.result;
-			};
-
-			reader.readAsText(file);
-		});
+		);
 
 		downloadExport.addEventListener(
 			"click",
 			downloadRoute
 		);
 
-		removeStreet.addEventListener("click", () => {
-			if (!street.value) {
-				return;
-			}
-
-			const name = street.value;
-
-			const amount = houses.filter(
-				h => h.street === name
-			).length;
-
-			if (amount > 0) {
-				if (!confirm(
-					"This street still has houses. Delete everything?"
-				)) {
+		removeStreet.addEventListener(
+			"click",
+			() => {
+				if (!street.value) {
 					return;
 				}
 
-				houses = houses.filter(
-					h => h.street !== name
-				);
-			} else {
-				if (!confirm("Delete street?")) {
-					return;
+				const name =
+					street.value;
+
+				const amount =
+					houses.filter(
+						h =>
+							h.street ===
+							name
+					).length;
+
+				if (amount > 0) {
+					if (
+						!confirm(
+							"This street still has houses. Delete everything?"
+						)
+					) {
+						return;
+					}
+
+					houses =
+						houses.filter(
+							h =>
+								h.street !==
+								name
+						);
+				} else {
+					if (
+						!confirm(
+							"Delete street?"
+						)
+					) {
+						return;
+					}
 				}
-			}
 
-			streets = streets.filter(
-				streetName => streetName !== name
-			);
-
-			DAYS.forEach(day => {
-				streetOrders[day] =
-					streetOrders[day].filter(
+				streets =
+					streets.filter(
 						streetName =>
-							streetName !== name
+							streetName !==
+							name
 					);
-			});
 
-			saveData();
-			renderStreetList();
-			renderList();
-		});
+				DAYS.forEach(day => {
+					streetOrders[day] =
+						streetOrders[
+							day
+						].filter(
+							streetName =>
+								streetName !==
+								name
+						);
+				});
+
+				saveData();
+				renderStreetList();
+				renderList();
+			}
+		);
 
 		street.addEventListener(
 			"change",
@@ -1683,13 +2440,20 @@
 					return ["mawo"];
 
 				case "week":
-					return ["mawo", "dovr", "za"];
+					return [
+						"mawo",
+						"dovr",
+						"za"
+					];
 
 				case "dovr":
 					return ["dovr"];
 
 				case "doza":
-					return ["dovr", "za"];
+					return [
+						"dovr",
+						"za"
+					];
 
 				case "za":
 					return ["za"];
@@ -1702,234 +2466,350 @@
 			}
 		}
 
-		function getImportedDays(data, selectedDays) {
-			const sourceDays =
-				Array.isArray(data.days) &&
-				data.days.length
-					? data.days.filter(day =>
-						DAYS.includes(day)
-					)
-					: DAYS.filter(day =>
-						data.houses.some(h =>
-							Array.isArray(
-								h.kranten?.[day]
-							) &&
-							h.kranten[day].length > 0
-						)
-					);
-
-			/*
-				If the selected target day also exists in the
-				export, import that matching day.
-			*/
-			return selectedDays.filter(day =>
-				sourceDays.includes(day)
-			);
-		}
-
-		function importRoute(data, mode, selectedDays) {
+		function importRoute(
+			data,
+			mode,
+			selectedDays
+		) {
 			if (
 				!data ||
-				!Array.isArray(data.streets) ||
-				!Array.isArray(data.houses)
+				!Array.isArray(
+					data.streets
+				) ||
+				!Array.isArray(
+					data.houses
+				)
 			) {
-				alert("Invalid route data.");
+				alert(
+					"Invalid route data."
+				);
+
 				return;
 			}
 
 			const sourceDays =
 				Array.isArray(data.days) &&
 				data.days.length
-					? data.days.filter(day =>
-						DAYS.includes(day)
-					)
+					? data.days.filter(
+							day =>
+								DAYS.includes(
+									day
+								)
+						)
 					: DAYS;
 
 			const daysToImport =
-				selectedDays.filter(day =>
-					sourceDays.includes(day)
+				selectedDays.filter(
+					day =>
+						sourceDays.includes(
+							day
+						)
 				);
 
-			if (daysToImport.length === 0) {
+			if (
+				daysToImport.length ===
+				0
+			) {
 				alert(
 					"The selected days are not present in this export."
 				);
+
 				return;
 			}
 
 			if (mode === "replace") {
-				houses.forEach(ensureHouseStructure);
-
-				houses.forEach(house => {
-					daysToImport.forEach(day => {
-						house.kranten[day] = [];
-						house.checked[day] = false;
-					});
-				});
-
-				houses = houses.filter(house =>
-					DAYS.some(day =>
-						house.kranten[day].length > 0
-					)
+				houses.forEach(
+					ensureHouseStructure
 				);
 
-				daysToImport.forEach(day => {
-					streetOrders[day] = [];
-				});
+				houses.forEach(
+					house => {
+						daysToImport.forEach(
+							day => {
+								house.kranten[
+									day
+								] = [];
+
+								house.checked[
+									day
+								] = false;
+							}
+						);
+					}
+				);
+
+				houses =
+					houses.filter(
+						house =>
+							DAYS.some(
+								day =>
+									house
+										.kranten[
+											day
+										]
+										.length >
+									0
+							)
+					);
+
+				daysToImport.forEach(
+					day => {
+						streetOrders[
+							day
+						] = [];
+					}
+				);
 			}
 
 			/*
-				Keep the global street list. Importing a route can
-				introduce new streets.
+				Keep the global street list.
+				Importing can introduce
+				new streets.
 			*/
-			data.streets.forEach(name => {
-				if (
-					typeof name === "string" &&
-					!streets.includes(name)
-				) {
-					streets.push(name);
+			data.streets.forEach(
+				name => {
+					if (
+						typeof name ===
+							"string" &&
+						!streets.includes(
+							name
+						)
+					) {
+						streets.push(
+							name
+						);
+					}
 				}
-			});
+			);
 
 			/*
-				Import saved per-day street orders first.
+				Import saved per-day
+				street orders first.
 			*/
 			if (
 				data.streetOrders &&
-				typeof data.streetOrders === "object"
+				typeof data.streetOrders ===
+					"object"
 			) {
-				daysToImport.forEach(day => {
-					if (
-						Array.isArray(
-							data.streetOrders[day]
-						)
-					) {
-						const importedOrder =
-							data.streetOrders[day].filter(
-								name =>
-									streets.includes(name)
-							);
+				daysToImport.forEach(
+					day => {
+						if (
+							Array.isArray(
+								data
+									.streetOrders[
+										day
+									]
+							)
+						) {
+							const importedOrder =
+								data
+									.streetOrders[
+										day
+									].filter(
+										name =>
+											streets.includes(
+												name
+											)
+									);
 
-						if (mode === "replace") {
-							streetOrders[day] =
-								[...importedOrder];
-						} else {
-							importedOrder.forEach(name => {
-								if (
-									!streetOrders[day]
-										.includes(name)
-								) {
-									streetOrders[day]
-										.push(name);
-								}
-							});
+							if (
+								mode ===
+								"replace"
+							) {
+								streetOrders[
+									day
+								] = [
+									...importedOrder
+								];
+							} else {
+								importedOrder.forEach(
+									name => {
+										if (
+											!streetOrders[
+												day
+											].includes(
+												name
+											)
+										) {
+											streetOrders[
+												day
+											].push(
+												name
+											);
+										}
+									}
+								);
+							}
 						}
 					}
-				});
+				);
 			}
 
-			data.houses.forEach(importedHouse => {
-				if (
-					!importedHouse ||
-					typeof importedHouse.street !== "string"
-				) {
-					return;
-				}
+			data.houses.forEach(
+				importedHouse => {
+					if (
+						!importedHouse ||
+						typeof importedHouse.street !==
+							"string"
+					) {
+						return;
+					}
 
-				ensureHouseStructure(importedHouse);
-
-				const hasSelectedDayPapers =
-					daysToImport.some(day =>
-						importedHouse.kranten[day].length > 0
+					ensureHouseStructure(
+						importedHouse
 					);
 
-				/*
-					Do not create an empty house when doing a
-					partial-day import.
-				*/
-				if (!hasSelectedDayPapers) {
-					return;
-				}
-
-				let existing = houses.find(h =>
-					h.street === importedHouse.street &&
-					h.number == importedHouse.number
-				);
-
-				if (!existing) {
-					existing = {
-						street: importedHouse.street,
-						number: importedHouse.number,
-						checked: {
-							mawo: false,
-							dovr: false,
-							za: false,
-							f: false
-						},
-						kranten: {
-							mawo: [],
-							dovr: [],
-							za: [],
-							f: []
-						}
-					};
-
-					houses.push(existing);
-				}
-
-				ensureHouseStructure(existing);
-
-				daysToImport.forEach(day => {
-					const importedPapers =
-						Array.isArray(
-							importedHouse.kranten[day]
-						)
-							? importedHouse.kranten[day]
-							: [];
-
-					importedPapers.forEach(paper => {
-						if (
-							!existing.kranten[day]
-								.includes(paper)
-						) {
-							existing.kranten[day]
-								.push(paper);
-						}
-					});
-
-					existing.kranten[day].sort();
+					const hasSelectedDayPapers =
+						daysToImport.some(
+							day =>
+								importedHouse
+									.kranten[
+										day
+									]
+									.length >
+								0
+						);
 
 					if (
-						existing.kranten[day].length > 0
+						!hasSelectedDayPapers
 					) {
-						addStreetToDayOrder(
-							day,
-							existing.street
+						return;
+					}
+
+					let existing =
+						houses.find(
+							h =>
+								h.street ===
+									importedHouse.street &&
+								h.number ==
+									importedHouse.number
+						);
+
+					if (!existing) {
+						existing = {
+							street:
+								importedHouse.street,
+							number:
+								importedHouse.number,
+							checked: {
+								mawo: false,
+								dovr: false,
+								za: false,
+								f: false
+							},
+							kranten: {
+								mawo: [],
+								dovr: [],
+								za: [],
+								f: []
+							}
+						};
+
+						houses.push(
+							existing
 						);
 					}
 
-					if (
-						importedHouse.checked &&
-						typeof importedHouse.checked[day] ===
-							"boolean"
-					) {
-						existing.checked[day] =
-							importedHouse.checked[day];
-					}
-				});
-			});
+					ensureHouseStructure(
+						existing
+					);
 
-			/*
-				If the export had no streetOrders for a selected
-				day, derive that day's order from the imported
-				house order.
-			*/
-			daysToImport.forEach(day => {
-				if (!Array.isArray(streetOrders[day])) {
-					streetOrders[day] =
-						buildOrderFromHouseUsage(day);
+					daysToImport.forEach(
+						day => {
+							const importedPapers =
+								Array.isArray(
+									importedHouse
+										.kranten[
+											day
+										]
+								)
+									? importedHouse
+											.kranten[
+												day
+											]
+									: [];
+
+							importedPapers.forEach(
+								paper => {
+									if (
+										!existing
+											.kranten[
+												day
+											]
+											.includes(
+												paper
+											)
+									) {
+										existing
+											.kranten[
+												day
+											]
+											.push(
+												paper
+											);
+									}
+								}
+							);
+
+							existing
+								.kranten[
+									day
+								]
+								.sort();
+
+							if (
+								existing
+									.kranten[
+										day
+									]
+									.length >
+								0
+							) {
+								addStreetToDayOrder(
+									day,
+									existing.street
+								);
+							}
+
+							if (
+								importedHouse.checked &&
+								typeof importedHouse
+									.checked[
+										day
+									] ===
+									"boolean"
+							) {
+								existing.checked[
+									day
+								] =
+									importedHouse
+										.checked[
+											day
+										];
+							}
+						}
+					);
 				}
-			});
+			);
+
+			daysToImport.forEach(
+				day => {
+					if (
+						!Array.isArray(
+							streetOrders[
+								day
+							]
+						)
+					) {
+						streetOrders[
+							day
+						] =
+							buildOrderFromHouseUsage(
+								day
+							);
+					}
+				}
+			);
 
 			normalizeStreetOrders();
 			saveData();
@@ -1939,305 +2819,540 @@
 			alert("Import complete.");
 		}
 
-		submit.addEventListener("click", () => {
-			if (!street.value) {
-				alert("Add a street first.");
-				return;
-			}
+		submit.addEventListener(
+			"click",
+			() => {
+				if (!street.value) {
+					alert(
+						"Add a street first."
+					);
 
-			const number =
-				houseNumber.value.trim();
-
-			if (number === "") {
-				alert("Enter a house number.");
-				return;
-			}
-
-			const selectedKrant = krant.value;
-			const selectedDays =
-				getSelectedDayGroups();
-
-			if (action.value === "add") {
-
-				let existing = houses.find(
-					h =>
-						h.street === street.value &&
-						h.number == number
-				);
-
-				if (existing) {
-					ensureHouseStructure(existing);
-
-					selectedDays.forEach(day => {
-						if (
-							!existing.kranten[day]
-								.includes(selectedKrant)
-						) {
-							existing.kranten[day]
-								.push(selectedKrant);
-
-							existing.kranten[day].sort();
-						}
-					});
-
-				} else {
-					let newHouse = {
-						street: street.value,
-						number: number,
-						checked: {
-							mawo: false,
-							dovr: false,
-							za: false,
-							f: false
-						},
-						kranten: {
-							mawo: [],
-							dovr: [],
-							za: [],
-							f: []
-						}
-					};
-
-					selectedDays.forEach(day => {
-						newHouse.kranten[day]
-							.push(selectedKrant);
-					});
-
-					houses.push(newHouse);
+					return;
 				}
 
-				selectedDays.forEach(day => {
-					addStreetToDayOrder(
-						day,
-						street.value
+				const number =
+					houseNumber.value.trim();
+
+				if (number === "") {
+					alert(
+						"Enter a house number."
 					);
-				});
 
-			} else if (action.value === "bij") {
+					return;
+				}
 
-				let existing = houses.find(
-					h =>
-						h.street === street.value &&
-						h.number == number
-				);
+				const selectedKrant =
+					krant.value;
 
-				if (existing) {
-					ensureHouseStructure(existing);
+				const selectedDays =
+					getSelectedDayGroups();
 
-					selectedDays.forEach(day => {
-						if (
-							!existing.kranten[day]
-								.includes(selectedKrant)
-						) {
-							existing.kranten[day]
-								.push(selectedKrant);
+				if (
+					selectedDays.length ===
+					0
+				) {
+					return;
+				}
 
-							existing.kranten[day].sort();
-						}
-					});
+				if (
+					action.value ===
+					"add"
+				) {
+					let existing =
+						houses.find(
+							h =>
+								h.street ===
+									street.value &&
+								h.number ==
+									number
+						);
 
-				} else {
-					let newHouse = {
-						street: street.value,
-						number: number,
-						checked: {
-							mawo: false,
-							dovr: false,
-							za: false,
-							f: false
-						},
-						kranten: {
-							mawo: [],
-							dovr: [],
-							za: [],
-							f: []
-						}
-					};
+					if (existing) {
+						ensureHouseStructure(
+							existing
+						);
 
-					selectedDays.forEach(day => {
-						newHouse.kranten[day]
-							.push(selectedKrant);
-					});
+						selectedDays.forEach(
+							day => {
+								if (
+									!existing
+										.kranten[
+											day
+										]
+										.includes(
+											selectedKrant
+										)
+								) {
+									existing
+										.kranten[
+											day
+										]
+										.push(
+											selectedKrant
+										);
 
-					const referenceHouse =
-						parseInt(reference.value);
-
-					if (isNaN(referenceHouse)) {
-						houses.push(newHouse);
+									existing
+										.kranten[
+											day
+										]
+										.sort();
+								}
+							}
+						);
 					} else {
-						houses.splice(
-							referenceHouse,
-							0,
+						const newHouse = {
+							street:
+								street.value,
+							number:
+								number,
+							checked: {
+								mawo: false,
+								dovr: false,
+								za: false,
+								f: false
+							},
+							kranten: {
+								mawo: [],
+								dovr: [],
+								za: [],
+								f: []
+							}
+						};
+
+						selectedDays.forEach(
+							day => {
+								newHouse
+									.kranten[
+										day
+									]
+									.push(
+										selectedKrant
+									);
+							}
+						);
+
+						houses.push(
 							newHouse
+						);
+					}
+
+					selectedDays.forEach(
+						day => {
+							addStreetToDayOrder(
+								day,
+								street.value
+							);
+						}
+					);
+				}
+
+				else if (
+					action.value ===
+					"bij"
+				) {
+					let existing =
+						houses.find(
+							h =>
+								h.street ===
+									street.value &&
+								h.number ==
+									number
+						);
+
+					if (existing) {
+						ensureHouseStructure(
+							existing
+						);
+
+						selectedDays.forEach(
+							day => {
+								if (
+									!existing
+										.kranten[
+											day
+										]
+										.includes(
+											selectedKrant
+										)
+								) {
+									existing
+										.kranten[
+											day
+										]
+										.push(
+											selectedKrant
+										);
+
+									existing
+										.kranten[
+											day
+										]
+										.sort();
+								}
+							}
+						);
+					} else {
+						const newHouse = {
+							street:
+								street.value,
+							number:
+								number,
+							checked: {
+								mawo: false,
+								dovr: false,
+								za: false,
+								f: false
+							},
+							kranten: {
+								mawo: [],
+								dovr: [],
+								za: [],
+								f: []
+							}
+						};
+
+						selectedDays.forEach(
+							day => {
+								newHouse
+									.kranten[
+										day
+									]
+									.push(
+										selectedKrant
+									);
+							}
+						);
+
+						const referenceHouse =
+							parseInt(
+								reference.value
+							);
+
+						if (
+							isNaN(
+								referenceHouse
+							)
+						) {
+							houses.push(
+								newHouse
+							);
+						} else {
+							houses.splice(
+								referenceHouse,
+								0,
+								newHouse
+							);
+						}
+					}
+
+					/*
+						Bij does not alter the
+						existing street order.
+					*/
+					selectedDays.forEach(
+						day => {
+							addStreetToDayOrder(
+								day,
+								street.value
+							);
+						}
+					);
+				}
+
+				else if (
+					action.value ===
+					"af"
+				) {
+					const existing =
+						houses.find(
+							h =>
+								h.street ===
+									street.value &&
+								h.number ==
+									number
+						);
+
+					if (!existing) {
+						alert(
+							"House not found."
+						);
+
+						return;
+					}
+
+					ensureHouseStructure(
+						existing
+					);
+
+					selectedDays.forEach(
+						day => {
+							const index =
+								existing
+									.kranten[
+										day
+									]
+									.indexOf(
+										selectedKrant
+									);
+
+							if (
+								index !== -1
+							) {
+								existing
+									.kranten[
+										day
+									]
+									.splice(
+										index,
+										1
+									);
+							}
+
+							removeStreetFromDayIfUnused(
+								day,
+								existing.street
+							);
+						}
+					);
+
+					const hasAnyKranten =
+						existing.kranten
+							.mawo.length ||
+						existing.kranten
+							.dovr.length ||
+						existing.kranten
+							.za.length ||
+						existing.kranten
+							.f.length;
+
+					if (!hasAnyKranten) {
+						houses.splice(
+							houses.indexOf(
+								existing
+							),
+							1
 						);
 					}
 				}
 
-				/*
-					Bij still does not change street order.
-					It only makes sure the street exists in the
-					selected days' orders.
-				*/
-				selectedDays.forEach(day => {
-					addStreetToDayOrder(
-						day,
-						street.value
-					);
-				});
+				normalizeStreetOrders();
+				saveData();
+				renderList();
 
-			} else if (action.value === "af") {
+				houseNumber.value = "";
+				houseNumber.focus();
+			}
+		);
 
-				let existing = houses.find(
-					h =>
-						h.street === street.value &&
-						h.number == number
+		exportData.addEventListener(
+			"click",
+			() => {
+				setDayCheckboxes(
+					exportDayChoices,
+					DAYS
 				);
 
-				if (!existing) {
-					alert("House not found.");
+				openPopup(exportPopup);
+			}
+		);
+
+		cancelImport.addEventListener(
+			"click",
+			() => {
+				closePopup(importPopup);
+				importText.value = "";
+			}
+		);
+
+		cancelExport.addEventListener(
+			"click",
+			() => {
+				closePopup(exportPopup);
+			}
+		);
+
+		confirmImport.addEventListener(
+			"click",
+			() => {
+				const selectedDays =
+					getCheckedDays(
+						importDayChoices
+					);
+
+				if (
+					selectedDays.length ===
+					0
+				) {
+					alert(
+						"Select at least one day."
+					);
+
 					return;
 				}
 
-				ensureHouseStructure(existing);
+				let data;
 
-				selectedDays.forEach(day => {
-					const index =
-						existing.kranten[day]
-							.indexOf(selectedKrant);
-
-					if (index !== -1) {
-						existing.kranten[day]
-							.splice(index, 1);
-					}
-
-					removeStreetFromDayIfUnused(
-						day,
-						existing.street
+				try {
+					data = JSON.parse(
+						importText.value
 					);
-				});
-
-				const hasAnyKranten =
-					existing.kranten.mawo.length ||
-					existing.kranten.dovr.length ||
-					existing.kranten.za.length ||
-					existing.kranten.f.length;
-
-				if (!hasAnyKranten) {
-					houses.splice(
-						houses.indexOf(existing),
-						1
+				} catch {
+					alert(
+						"Invalid route data."
 					);
+
+					return;
 				}
+
+				importRoute(
+					data,
+					importMode.value,
+					selectedDays
+				);
+
+				closePopup(importPopup);
+
+				importText.value = "";
 			}
+		);
 
-			normalizeStreetOrders();
-			saveData();
-			renderList();
+		importData.addEventListener(
+			"click",
+			() => {
+				setDayCheckboxes(
+					importDayChoices,
+					[dayView.value]
+				);
 
-			houseNumber.value = "";
-			houseNumber.focus();
-		});
+				importText.value = "";
+				importFile.value = "";
 
-		exportData.addEventListener("click", () => {
-			/*
-				Every day is selected by default when opening
-				the export popup.
-			*/
-			setDayCheckboxes(
-				exportDayChoices,
-				DAYS
-			);
+				document.getElementById(
+					"fileName"
+				).textContent =
+					"No file selected";
 
-			exportPopup.style.display = "flex";
-		});
-
-		cancelImport.addEventListener("click", () => {
-			importPopup.style.display = "none";
-			importText.value = "";
-		});
-
-		cancelExport.addEventListener("click", () => {
-			exportPopup.style.display = "none";
-		});
-
-		confirmImport.addEventListener("click", () => {
-			const selectedDays =
-				getCheckedDays(importDayChoices);
-
-			if (selectedDays.length === 0) {
-				alert("Select at least one day.");
-				return;
+				openPopup(importPopup);
 			}
+		);
 
-			let data;
-
-			try {
-				data = JSON.parse(importText.value);
-			} catch {
-				alert("Invalid route data.");
-				return;
-			}
-
-			importRoute(
-				data,
-				importMode.value,
-				selectedDays
-			);
-
-			importPopup.style.display = "none";
-			importText.value = "";
-		});
-
-		importData.addEventListener("click", () => {
-			/*
-				Default import selection = current day.
-				You can select multiple days or All.
-			*/
-			setDayCheckboxes(
-				importDayChoices,
-				[dayView.value]
-			);
-
-			importText.value = "";
-			importFile.value = "";
-			document.getElementById(
-				"fileName"
-			).textContent = "No file selected";
-
-			importPopup.style.display = "flex";
-		});
-
+		/*
+			Clicking the dark area closes the popup.
+			The popup itself remains the only scrollable area.
+		*/
 		[
 			importPopup,
 			exportPopup,
 			statsPopup,
 			reorderPopup
 		].forEach(popup => {
-			popup.addEventListener("click", event => {
-				if (event.target === popup) {
-					popup.style.display = "none";
+			popup.addEventListener(
+				"click",
+				event => {
+					if (
+						event.target ===
+						popup
+					) {
+						closePopup(
+							popup
+						);
 
-					if (popup === reorderPopup) {
-						reorderDay = null;
-						reorderDays = [];
-						reorderTemp = [];
+						if (
+							popup ===
+							reorderPopup
+						) {
+							reorderDay =
+								null;
+
+							reorderDays =
+								[];
+
+							reorderTemp =
+								[];
+						}
 					}
 				}
-			});
+			);
 		});
+
+		/*
+			Extra safety:
+			pressing Escape closes the currently
+			open popup.
+		*/
+		document.addEventListener(
+			"keydown",
+			event => {
+				if (
+					event.key !==
+					"Escape"
+				) {
+					return;
+				}
+
+				const popups = [
+					importPopup,
+					exportPopup,
+					statsPopup,
+					reorderPopup
+				];
+
+				const open =
+					popups.find(
+						popup =>
+							getComputedStyle(
+								popup
+							).display ===
+							"flex"
+					);
+
+				if (!open) {
+					return;
+				}
+
+				closePopup(open);
+
+				if (
+					open ===
+					reorderPopup
+				) {
+					reorderDay =
+						null;
+
+					reorderDays =
+						[];
+
+					reorderTemp =
+						[];
+				}
+			}
+		);
 
 		loadData();
 
-		const today = new Date().getDay();
+		const today =
+			new Date().getDay();
 
-		if (today >= 1 && today <= 3) {
-			dayView.value = "mawo";
-		} else if (today >= 4 && today <= 5) {
-			dayView.value = "dovr";
-		} else if (today === 6) {
-			dayView.value = "za";
+		if (
+			today >= 1 &&
+			today <= 3
+		) {
+			dayView.value =
+				"mawo";
+		} else if (
+			today >= 4 &&
+			today <= 5
+		) {
+			dayView.value =
+				"dovr";
+		} else if (
+			today === 6
+		) {
+			dayView.value =
+				"za";
 		} else {
-			dayView.value = "mawo";
+			dayView.value =
+				"mawo";
 		}
 
 		renderStreetList();

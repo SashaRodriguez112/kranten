@@ -28,12 +28,12 @@
 		}
 
 		h1 {
-		padding-bottom: 10px;
+			padding-bottom: 10px;
 		}
 
 		#dayView {
-		position: relative;
-		bottom: 3px;
+			position: relative;
+			bottom: 3px;
 		}
 
 		.controls {
@@ -110,119 +110,133 @@
 			background: #550000;
 		}
 
-		#importPopup {
-	        display: none;
-	        position: fixed;
-	        inset: 0;
-	        background: rgba(0,0,0,0.7);
-	        align-items: center;
-	        justify-content: center;
-	        z-index: 1000;
-        }
+		#importPopup,
+		#exportPopup,
+		#statsPopup,
+		#reorderPopup {
+			display: none;
+			position: fixed;
+			inset: 0;
+			background: rgba(0,0,0,0.7);
+			align-items: center;
+			justify-content: center;
+			z-index: 1000;
+		}
 
-        #exportPopup {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.7);
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
+		.importBox {
+			background: #002222;
+			border: 2px solid turquoise;
+			border-radius: 12px;
+			padding: 20px;
+			width: min(500px, 90%);
+		}
 
-        .importBox {
-	        background: #002222;
-	        border: 2px solid turquoise;
-	        border-radius: 12px;
-	        padding: 20px;
-	        width: min(500px, 90%);
-        }
+		.importBox h2 {
+			margin-top: 0;
+		}
 
-        .importBox h2 {
-	        margin-top: 0;
-        }
+		#importText {
+			width: 100%;
+			height: 180px;
+			resize: vertical;
+			box-sizing: border-box;
+			margin-bottom: 15px;
+			background-color: #000000;
+			color: snow; 
+		}
 
-        #importText {
-	        width: 100%;
-	        height: 180px;
-	        resize: vertical;
-	        box-sizing: border-box;
-	        margin-bottom: 15px;
-	        background-color: #000000;
-	        color: snow; 
-        }
+		.importOptions {
+			display: flex;
+			gap: 10px;
+			margin-bottom: 15px;
+		}
 
-        .importOptions {
-	        display: flex;
-	        gap: 10px;
-	        margin-bottom: 15px;
-        }
+		.importButtons {
+			display: flex;
+			gap: 10px;
+		}
 
-        .importButtons {
-	        display: flex;
-	        gap: 10px;
-        }
+		summary.header {
+			display: flex;
+			align-items: center;
+			gap: 20px;
+			cursor: pointer;
+		}
 
-        summary.header {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            cursor: pointer;
-        }
+		summary.header h1 {
+			margin: 0;
+		}
 
-        summary.header h1 {
-            margin: 0;
-        }
+		summary.header select {
+			margin-left: 10px;
+		}
 
-        summary.header select {
-            margin-left: 10px;
-        }
+		#importFile {
+			margin-bottom: 15px;
+		}
 
-        #importFile {
-            margin-bottom: 15px;
-        }
-
-        .file-upload {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-top: 10px;
-            margin-bottom: 15px;
-            padding: 10px;
-            width: fit-content;
-            border: 2px solid #20e0d0;
-            border-radius: 10px;
-        }
+		.file-upload {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			margin-top: 10px;
+			margin-bottom: 15px;
+			padding: 10px;
+			width: fit-content;
+			border: 2px solid #20e0d0;
+			border-radius: 10px;
+		}
         
-        .file-button {
-            background: #000;
-            color: #eee;
-            border: 2px solid #20e0d0;
-            padding: 8px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-        }
+		.file-button {
+			background: #000;
+			color: #eee;
+			border: 2px solid #20e0d0;
+			padding: 8px 14px;
+			border-radius: 8px;
+			cursor: pointer;
+			font-size: 16px;
+		}
 
-        .file-button:hover {
-            background: #20e0d0;
-            color: #000;
-        }
+		.file-button:hover {
+			background: #20e0d0;
+			color: #000;
+		}
 
-        #fileName {
-            color: #aaa;
-            font-size: 16px;
-        }
-        
-        #statsPopup {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.7);
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
+		#fileName {
+			color: #aaa;
+			font-size: 16px;
+		}
+
+		.streetHeading {
+			user-select: none;
+			-webkit-user-select: none;
+			cursor: default;
+		}
+
+		.reorderMode .streetHeading {
+			cursor: grab;
+			border: 2px dashed turquoise;
+			border-radius: 8px;
+			padding: 6px 10px;
+			width: max-content;
+		}
+
+		.reorderMode .streetHeading:active {
+			cursor: grabbing;
+		}
+
+		.reorderMode .streetHeading.dragging {
+			opacity: 0.4;
+		}
+
+		.streetDropTarget {
+			border-top: 3px solid turquoise;
+		}
+
+		#reorderHint {
+			color: #aaa;
+			margin-bottom: 15px;
+		}
 	</style>
 </head>
 
@@ -288,11 +302,13 @@
 		<div class="importBox">
 			<h2>Import Route</h2>
 			<textarea id="importText" placeholder="Paste exported route here"></textarea>
+
 			<div class="file-upload">
 				<input type="file" id="importFile" accept=".json" hidden>
 				<label for="importFile" class="file-button">Choose route file</label>
 				<span id="fileName">No file selected</span>
 			</div>
+
 			<div class="importOptions">
 				<select id="importDays">
 					<option value="all">All days</option>
@@ -301,11 +317,13 @@
 					<option value="za">Za</option>
 					<option value="f">F</option>
 				</select>
+
 				<select id="importMode">
 					<option value="replace">Replace</option>
 					<option value="add">Add</option>
 				</select>
 			</div>
+
 			<div class="importButtons">
 				<button id="cancelImport">Cancel</button>
 				<button id="confirmImport">Import</button>
@@ -318,11 +336,14 @@
 			<h2>Export Route</h2>
 			<p>Choose how you want to export your route.</p>
 			<br>
+
 			<div class="importButtons">
 				<button id="copyExport">📋 Copy to Clipboard</button>
 				<button id="downloadExport">📄 Download JSON</button>
 			</div>
+
 			<br>
+
 			<div class="importButtons">
 				<button id="cancelExport">Cancel</button>
 			</div>
@@ -332,30 +353,69 @@
 	<div id="statsPopup">
 		<div class="importBox">
 			<h2>Route Statistics</h2>
+
 			<select id="statsDay">
 				<option value="mawo">Ma-Wo</option>
 				<option value="dovr">Do-Vr</option>
 				<option value="za">Za</option>
 				<option value="f">F</option>
 			</select>
+
 			<br><br>
+
 			<div id="statsContent"></div>
+
 			<br>
+
 			<div class="importButtons">
 				<button id="closeStats">Close</button>
 			</div>
 		</div>
 	</div>
 
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
+	<div id="reorderPopup">
+		<div class="importBox">
+			<h2>Reorder Streets</h2>
+			<p id="reorderHint">
+				Drag the streets into the order you want for this day.
+			</p>
+
+			<div id="reorderList"></div>
+
+			<br>
+
+			<div class="importButtons">
+				<button id="cancelReorder">Cancel</button>
+				<button id="saveReorder">Save Order</button>
+			</div>
+		</div>
+	</div>
+
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
 
 	<script>
 		let streets = [];
 		let houses = [];
+
+		/*
+			Each day gets its own street order.
+
+			Example:
+			mawo: [1, 2, 3]
+			f:    [3, 2, 1]
+
+			This means changing the F order does not affect Ma-Wo.
+		*/
+		let streetOrders = {
+			mawo: [],
+			dovr: [],
+			za: [],
+			f: []
+		};
 
 		const street = document.getElementById("street");
 		const addStreet = document.getElementById("addStreet");
@@ -389,14 +449,52 @@
 		const statsContent = document.getElementById("statsContent");
 		const closeStats = document.getElementById("closeStats");
 
+		const reorderPopup = document.getElementById("reorderPopup");
+		const reorderList = document.getElementById("reorderList");
+		const cancelReorder = document.getElementById("cancelReorder");
+		const saveReorder = document.getElementById("saveReorder");
+
+		let reorderDay = null;
+		let reorderTemp = [];
+		let longPressTimer = null;
+		let longPressTriggered = false;
+
 		function saveData() {
 			localStorage.setItem("streets", JSON.stringify(streets));
 			localStorage.setItem("houses", JSON.stringify(houses));
+			localStorage.setItem("streetOrders", JSON.stringify(streetOrders));
+		}
+
+		function normalizeStreetOrders() {
+			const validDays = ["mawo", "dovr", "za", "f"];
+
+			validDays.forEach(day => {
+				if (!Array.isArray(streetOrders[day])) {
+					streetOrders[day] = [];
+				}
+
+				/*
+					Remove streets that no longer exist.
+				*/
+				streetOrders[day] = streetOrders[day].filter(name =>
+					streets.includes(name)
+				);
+
+				/*
+					Add any existing streets that don't have an order yet.
+				*/
+				streets.forEach(name => {
+					if (!streetOrders[day].includes(name)) {
+						streetOrders[day].push(name);
+					}
+				});
+			});
 		}
 
 		function loadData() {
 			const savedStreets = localStorage.getItem("streets");
 			const savedHouses = localStorage.getItem("houses");
+			const savedStreetOrders = localStorage.getItem("streetOrders");
 
 			if (savedStreets) {
 				streets = JSON.parse(savedStreets);
@@ -453,6 +551,51 @@
 					house.checked.f ??= false;
 				});
 			}
+
+			if (savedStreetOrders) {
+				try {
+					streetOrders = JSON.parse(savedStreetOrders);
+				} catch {
+					streetOrders = {
+						mawo: [],
+						dovr: [],
+						za: [],
+						f: []
+					};
+				}
+			}
+
+			normalizeStreetOrders();
+
+			/*
+				If this is an older version without streetOrders,
+				use the original street order as the starting order.
+			*/
+			saveData();
+		}
+
+		function getOrderedStreets(day) {
+			normalizeStreetOrders();
+
+			return streetOrders[day].filter(streetName => {
+				return houses.some(house =>
+					house.street === streetName &&
+					house.kranten[day] &&
+					house.kranten[day].length > 0
+				);
+			});
+		}
+
+		function addStreetToDayOrder(day, streetName) {
+			if (!streetOrders[day].includes(streetName)) {
+				streetOrders[day].push(streetName);
+			}
+		}
+
+		function addStreetToAllDayOrders(streetName) {
+			["mawo", "dovr", "za", "f"].forEach(day => {
+				addStreetToDayOrder(day, streetName);
+			});
 		}
 
 		dayView.addEventListener("change", () => {
@@ -574,9 +717,10 @@
 
 		async function copyRoute() {
 			const exportObject = {
-				version: 1,
+				version: 2,
 				streets,
-				houses
+				houses,
+				streetOrders
 			};
 
 			const text = JSON.stringify(exportObject);
@@ -596,9 +740,7 @@
 
 		statsButton.addEventListener("click", () => {
 			statsDay.value = dayView.value;
-
 			updateStats();
-
 			statsPopup.style.display = "flex";
 		});
 
@@ -609,7 +751,6 @@
 		});
 
 		clearChecked.addEventListener("click", () => {
-
 			const selectedDay = dayView.value;
 
 			const anyChecked = houses.some(h => h.checked[selectedDay]);
@@ -633,9 +774,10 @@
 
 		function downloadRoute() {
 			const exportObject = {
-				version: 1,
+				version: 2,
 				streets,
-				houses
+				houses,
+				streetOrders
 			};
 
 			const text = JSON.stringify(exportObject, null, 2);
@@ -649,6 +791,7 @@
 			const a = document.createElement("a");
 			a.href = url;
 			a.download = "krantenwijk-backup.json";
+
 			document.body.appendChild(a);
 			a.click();
 			a.remove();
@@ -658,12 +801,150 @@
 			exportPopup.style.display = "none";
 		}
 
+		function startLongPress(streetName) {
+			longPressTriggered = false;
+
+			longPressTimer = setTimeout(() => {
+				longPressTriggered = true;
+				openReorderMode(streetName);
+			}, 3000);
+		}
+
+		function cancelLongPress() {
+			if (longPressTimer) {
+				clearTimeout(longPressTimer);
+				longPressTimer = null;
+			}
+		}
+
+		function openReorderMode(streetName) {
+			reorderDay = dayView.value;
+
+			normalizeStreetOrders();
+
+			/*
+				Start with the current order for this day.
+			*/
+			reorderTemp = [...streetOrders[reorderDay]];
+
+			reorderPopup.style.display = "flex";
+
+			renderReorderList();
+
+			/*
+				The street that was long-pressed is selected/highlighted
+				by being scrolled into view.
+			*/
+			setTimeout(() => {
+				const item = reorderList.querySelector(
+					`[data-street="${CSS.escape(streetName)}"]`
+				);
+
+				if (item) {
+					item.scrollIntoView({
+						behavior: "smooth",
+						block: "center"
+					});
+				}
+			}, 50);
+		}
+
+		function renderReorderList() {
+			reorderList.innerHTML = "";
+
+			reorderTemp.forEach((streetName, index) => {
+				const item = document.createElement("div");
+
+				item.textContent = `${index + 1}. ${streetName}`;
+				item.dataset.street = streetName;
+				item.draggable = true;
+
+				item.style.cssText = `
+					padding: 12px;
+					margin-bottom: 8px;
+					border: 2px solid turquoise;
+					border-radius: 8px;
+					background: #000;
+					cursor: grab;
+					user-select: none;
+				`;
+
+				item.addEventListener("dragstart", event => {
+					item.style.opacity = "0.4";
+					event.dataTransfer.setData("text/plain", streetName);
+				});
+
+				item.addEventListener("dragend", () => {
+					item.style.opacity = "1";
+				});
+
+				item.addEventListener("dragover", event => {
+					event.preventDefault();
+					item.classList.add("streetDropTarget");
+				});
+
+				item.addEventListener("dragleave", () => {
+					item.classList.remove("streetDropTarget");
+				});
+
+				item.addEventListener("drop", event => {
+					event.preventDefault();
+
+					item.classList.remove("streetDropTarget");
+
+					const draggedStreet = event.dataTransfer.getData("text/plain");
+
+					if (!draggedStreet || draggedStreet === streetName) {
+						return;
+					}
+
+					const fromIndex = reorderTemp.indexOf(draggedStreet);
+					const toIndex = reorderTemp.indexOf(streetName);
+
+					if (fromIndex === -1 || toIndex === -1) {
+						return;
+					}
+
+					reorderTemp.splice(fromIndex, 1);
+					reorderTemp.splice(toIndex, 0, draggedStreet);
+
+					renderReorderList();
+				});
+
+				reorderList.appendChild(item);
+			});
+		}
+
+		cancelReorder.addEventListener("click", () => {
+			reorderPopup.style.display = "none";
+			reorderDay = null;
+			reorderTemp = [];
+		});
+
+		saveReorder.addEventListener("click", () => {
+			if (!reorderDay) return;
+
+			streetOrders[reorderDay] = [...reorderTemp];
+
+			saveData();
+			renderList();
+
+			reorderPopup.style.display = "none";
+			reorderDay = null;
+			reorderTemp = [];
+		});
+
 		function renderList() {
 			houseList.innerHTML = "";
+
 			let idCounter = 0;
 			const selectedDay = dayView.value;
 
-			streets.forEach(streetName => {
+			normalizeStreetOrders();
+
+			const orderedStreets = getOrderedStreets(selectedDay);
+
+			orderedStreets.forEach(streetName => {
 
 				const visibleHouses = houses.filter(h =>
 					h.street === streetName &&
@@ -676,12 +957,35 @@
 
 				let heading = document.createElement("h2");
 				heading.textContent = streetName;
+				heading.className = "streetHeading";
+
+				/*
+					Long press for 3 seconds on a street.
+					Works with mouse and touch.
+				*/
+				heading.addEventListener("mousedown", () => {
+					startLongPress(streetName);
+				});
+
+				heading.addEventListener("mouseup", cancelLongPress);
+				heading.addEventListener("mouseleave", cancelLongPress);
+
+				heading.addEventListener("touchstart", event => {
+					event.preventDefault();
+					startLongPress(streetName);
+				}, { passive: false });
+
+				heading.addEventListener("touchend", cancelLongPress);
+				heading.addEventListener("touchcancel", cancelLongPress);
+
 				houseList.appendChild(heading);
 
 				visibleHouses.forEach(house => {
 
 					let li = document.createElement("li");
-					let uniqueId = `chk-${streetName.replace(/\s/g, '-')}-${house.number}-${idCounter++}`;
+
+					let uniqueId =
+						`chk-${streetName.replace(/\s/g, '-')}-${house.number}-${idCounter++}`;
 
 					li.innerHTML = `
                         <div class="houseLeft">
@@ -704,6 +1008,11 @@
 						};
 					}
 
+					house.checked.mawo ??= false;
+					house.checked.dovr ??= false;
+					house.checked.za ??= false;
+					house.checked.f ??= false;
+
 					checkbox.checked = house.checked[selectedDay];
 
 					checkbox.addEventListener("change", () => {
@@ -719,6 +1028,7 @@
 						if (!confirmed) return;
 
 						houses.splice(houses.indexOf(house), 1);
+
 						saveData();
 						renderList();
 					});
@@ -730,27 +1040,41 @@
 			renderReferenceList();
 		}
 
-		document.getElementById("importFile").addEventListener("change", function() {
+		importFile.addEventListener("change", function() {
 			const fileName = this.files[0]?.name || "No file selected";
 			document.getElementById("fileName").textContent = fileName;
 		});
 
 		action.addEventListener("change", () => {
-			referenceContainer.style.display = action.value === "bij" ? "inline" : "none";
+			referenceContainer.style.display =
+				action.value === "bij" ? "inline" : "none";
+
 			renderReferenceList();
 		});
 
 		addStreet.addEventListener("click", () => {
 			const name = prompt("Street name:");
+
 			if (!name) return;
+
 			if (streets.includes(name)) {
 				alert("Street already exists.");
 				return;
 			}
+
 			streets.push(name);
+
+			/*
+				New streets start at the end for every day.
+				They can then be reordered separately per day.
+			*/
+			addStreetToAllDayOrders(name);
+
 			saveData();
 			renderStreetList();
+
 			street.value = name;
+
 			renderList();
 		});
 
@@ -779,16 +1103,30 @@
 			const amount = houses.filter(h => h.street === name).length;
 
 			if (amount > 0) {
-				const confirmDelete = confirm("This street still has houses. Delete everything?");
+				const confirmDelete =
+					confirm("This street still has houses. Delete everything?");
+
 				if (!confirmDelete) return;
+
 				houses = houses.filter(h => h.street !== name);
 			} else {
 				const confirmDelete = confirm("Delete street?");
+
 				if (!confirmDelete) return;
+
 				houses = houses.filter(h => h.street !== name);
 			}
 
 			streets.splice(streets.indexOf(name), 1);
+
+			/*
+				Remove the street from every day's order too.
+			*/
+			["mawo", "dovr", "za", "f"].forEach(day => {
+				streetOrders[day] =
+					streetOrders[day].filter(streetName => streetName !== name);
+			});
+
 			saveData();
 			renderStreetList();
 			renderList();
@@ -817,7 +1155,7 @@
 
 				case "f":
 					return ["f"];
-					
+
 				default:
 					return [];
 			}
@@ -840,9 +1178,30 @@
 					streets = [];
 					houses = [];
 
+					streetOrders = {
+						mawo: [],
+						dovr: [],
+						za: [],
+						f: []
+					};
+
 				} else {
 
 					houses.forEach(house => {
+						house.kranten ??= {
+							mawo: [],
+							dovr: [],
+							za: [],
+							f: []
+						};
+
+						house.checked ??= {
+							mawo: false,
+							dovr: false,
+							za: false,
+							f: false
+						};
+
 						daysToImport.forEach(d => {
 							house.kranten[d] = [];
 							house.checked[d] = false;
@@ -855,6 +1214,12 @@
 						house.kranten.za.length ||
 						house.kranten.f.length
 					);
+
+					/*
+						When replacing one day, its street order is also
+						replaced by the order in the imported file.
+					*/
+					streetOrders[day] = [];
 				}
 			}
 
@@ -863,6 +1228,43 @@
 					streets.push(name);
 				}
 			});
+
+			/*
+				Import the saved street order when available.
+				Older exports simply fall back to the order of data.streets.
+			*/
+			if (data.streetOrders && typeof data.streetOrders === "object") {
+
+				daysToImport.forEach(d => {
+					if (Array.isArray(data.streetOrders[d])) {
+
+						if (mode === "replace") {
+							streetOrders[d] = data.streetOrders[d].filter(name =>
+								streets.includes(name)
+							);
+						} else {
+							data.streetOrders[d].forEach(name => {
+								if (
+									streets.includes(name) &&
+									!streetOrders[d].includes(name)
+								) {
+									streetOrders[d].push(name);
+								}
+							});
+						}
+					}
+				});
+
+			} else {
+
+				daysToImport.forEach(d => {
+					data.streets.forEach(name => {
+						if (!streetOrders[d].includes(name)) {
+							streetOrders[d].push(name);
+						}
+					});
+				});
+			}
 
 			data.houses.forEach(importedHouse => {
 
@@ -893,6 +1295,20 @@
 					houses.push(existing);
 				}
 
+				existing.kranten ??= {
+					mawo: [],
+					dovr: [],
+					za: [],
+					f: []
+				};
+
+				existing.checked ??= {
+					mawo: false,
+					dovr: false,
+					za: false,
+					f: false
+				};
+
 				daysToImport.forEach(d => {
 
 					const importedKranten =
@@ -914,6 +1330,8 @@
 				});
 
 			});
+
+			normalizeStreetOrders();
 
 			saveData();
 			renderStreetList();
@@ -979,6 +1397,20 @@
 					houses.push(newHouse);
 				}
 
+				/*
+					If a street receives its first house for a day,
+					put it at the END of that day's street order.
+
+					Example:
+					F starts as 1,2,3.
+					If you remove F houses from 2 and 1 and later
+					add something to 2 again, its position can still
+					be manually changed with the 3-second reorder.
+				*/
+				selectedDays.forEach(day => {
+					addStreetToDayOrder(day, street.value);
+				});
+
 			} else if (action.value === "bij") {
 
 				let existing = houses.find(
@@ -1024,7 +1456,17 @@
 					} else {
 						houses.splice(referenceHouse, 0, newHouse);
 					}
+
 				}
+
+				/*
+					Bij does NOT alter the street order.
+					The street order belongs to each day, not to
+					the order in the global houses array.
+				*/
+				selectedDays.forEach(day => {
+					addStreetToDayOrder(day, street.value);
+				});
 
 			} else if (action.value === "af") {
 
@@ -1095,7 +1537,6 @@
 
 			importPopup.style.display = "none";
 			importText.value = "";
-
 		});
 
 		importData.addEventListener("click", () => {
@@ -1104,19 +1545,15 @@
 
 		loadData();
 
-		const today = new Date().getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+		const today = new Date().getDay();
 
 		if (today >= 1 && today <= 3) {
-			// Monday, Tuesday, Wednesday
 			dayView.value = "mawo";
 		} else if (today >= 4 && today <= 5) {
-			// Thursday, Friday
 			dayView.value = "dovr";
 		} else if (today === 6) {
-			// Saturday
 			dayView.value = "za";
 		} else {
-			// Sunday (default)
 			dayView.value = "mawo";
 		}
 

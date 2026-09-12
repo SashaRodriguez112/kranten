@@ -346,11 +346,13 @@
 			</div>
 		</div>
 	</div>
+
         <br>
         <br>
         <br>
         <br>
         <br>
+
 	<script>
 		let streets = [];
 		let houses = [];
@@ -395,9 +397,11 @@
 		function loadData() {
 			const savedStreets = localStorage.getItem("streets");
 			const savedHouses = localStorage.getItem("houses");
+
 			if (savedStreets) {
 				streets = JSON.parse(savedStreets);
 			}
+
 			if (savedHouses) {
 				houses = JSON.parse(savedHouses);
 
@@ -406,9 +410,24 @@
 						house.kranten = {
 							mawo: house.kranten,
 							dovr: [],
-							za: []
+							za: [],
+							f: []
 						};
 					}
+
+					if (!house.kranten || typeof house.kranten !== "object") {
+						house.kranten = {
+							mawo: [],
+							dovr: [],
+							za: [],
+							f: []
+						};
+					}
+
+					house.kranten.mawo ??= [];
+					house.kranten.dovr ??= [];
+					house.kranten.za ??= [];
+					house.kranten.f ??= [];
 
 					if (typeof house.checked === "boolean") {
 						house.checked = {
@@ -418,6 +437,20 @@
 							f: false
 						};
 					}
+
+					if (!house.checked || typeof house.checked !== "object") {
+						house.checked = {
+							mawo: false,
+							dovr: false,
+							za: false,
+							f: false
+						};
+					}
+
+					house.checked.mawo ??= false;
+					house.checked.dovr ??= false;
+					house.checked.za ??= false;
+					house.checked.f ??= false;
 				});
 			}
 		}
@@ -507,6 +540,7 @@
 
 		function renderStreetList() {
 			street.innerHTML = "";
+
 			if (streets.length === 0) {
 				let option = document.createElement("option");
 				option.textContent = "Add street first";
@@ -514,6 +548,7 @@
 				street.appendChild(option);
 				return;
 			}
+
 			streets.forEach(name => {
 				let option = document.createElement("option");
 				option.value = name;
@@ -614,7 +649,9 @@
 			const a = document.createElement("a");
 			a.href = url;
 			a.download = "krantenwijk-backup.json";
+			document.body.appendChild(a);
 			a.click();
+			a.remove();
 
 			URL.revokeObjectURL(url);
 
@@ -737,8 +774,10 @@
 
 		removeStreet.addEventListener("click", () => {
 			if (!street.value) return;
+
 			const name = street.value;
 			const amount = houses.filter(h => h.street === name).length;
+
 			if (amount > 0) {
 				const confirmDelete = confirm("This street still has houses. Delete everything?");
 				if (!confirmDelete) return;
@@ -791,9 +830,9 @@
 				return;
 			}
 
-			const days = day === "all"
-	            ? ["mawo", "dovr", "za"]
-	            : [day];
+			const daysToImport = day === "all"
+				? ["mawo", "dovr", "za", "f"]
+				: [day];
 
 			if (mode === "replace") {
 
@@ -813,11 +852,11 @@
 					houses = houses.filter(house =>
 						house.kranten.mawo.length ||
 						house.kranten.dovr.length ||
-						house.kranten.za.length
+						house.kranten.za.length ||
+						house.kranten.f.length
 					);
 				}
 			}
-
 
 			data.streets.forEach(name => {
 				if (!streets.includes(name)) {
@@ -831,7 +870,6 @@
 					h.street === importedHouse.street &&
 					h.number == importedHouse.number
 				);
-
 
 				if (!existing) {
 
@@ -855,10 +893,15 @@
 					houses.push(existing);
 				}
 
-
 				daysToImport.forEach(d => {
 
-					importedHouse.kranten[d].forEach(krant => {
+					const importedKranten =
+						importedHouse.kranten &&
+						Array.isArray(importedHouse.kranten[d])
+							? importedHouse.kranten[d]
+							: [];
+
+					importedKranten.forEach(krant => {
 
 						if (!existing.kranten[d].includes(krant)) {
 							existing.kranten[d].push(krant);
@@ -871,7 +914,6 @@
 				});
 
 			});
-
 
 			saveData();
 			renderStreetList();
@@ -1006,7 +1048,8 @@
 				const hasAnyKranten =
 					existing.kranten.mawo.length ||
 					existing.kranten.dovr.length ||
-					existing.kranten.za.length;
+					existing.kranten.za.length ||
+					existing.kranten.f.length;
 
 				if (!hasAnyKranten) {
 					houses.splice(houses.indexOf(existing), 1);
@@ -1060,6 +1103,7 @@
 		});
 
 		loadData();
+
 		const today = new Date().getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
 
 		if (today >= 1 && today <= 3) {
